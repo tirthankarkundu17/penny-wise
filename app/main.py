@@ -1,5 +1,12 @@
 import uvicorn
+import logging
 from fastapi import FastAPI, status
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 from app.core.config import settings
 from app.db.database import create_db_and_tables
