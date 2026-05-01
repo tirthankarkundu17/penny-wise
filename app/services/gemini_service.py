@@ -1,20 +1,16 @@
 from google import genai
 from google.genai import types
 import json
-import os
-from dotenv import load_dotenv
 from tenacity import retry, wait_fixed, stop_after_attempt
-from app.schemas import BillCreate, ItemBase
 
-load_dotenv()
-
-API_KEY = os.getenv("GEMINI_API_KEY")
-MODEL_ID = "gemini-2.5-flash"
+from app.core.config import settings
+from app.schemas.bill import BillCreate, ItemBase
 
 
 class GeminiService:
-    def __init__(self):
-        self.client = genai.Client(api_key=API_KEY)
+    def __init__(self) -> None:
+        self.client = genai.Client(api_key=settings.gemini_api_key)
+        self.model_id = "gemini-2.5-flash"
 
     @retry(wait=wait_fixed(2), stop=stop_after_attempt(3))
     def extract_receipt_data(self, image_bytes: bytes) -> BillCreate:
@@ -41,14 +37,14 @@ class GeminiService:
           "grand_total": 0.00
         }
 
-        Important: 
+        Important:
         - If HSN is missing for an item, leave it as null.
         - Do not guess names; if unclear, mark as [UNCLEAR].
         - Ensure 'value' equals 'qty' multiplied by 'net_price'.
         """
 
         response = self.client.models.generate_content(
-            model=MODEL_ID,
+            model=self.model_id,
             contents=[
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
                 prompt,
@@ -60,20 +56,17 @@ class GeminiService:
 
         data = json.loads(response.text)
 
-        # Map the keys if necessary (Gemini sometimes returns 'item' instead of 'item_name' if prompt isn't strict enough)
-        # But we'll try to use the extracted data directly
-        items = []
-        for it in data.get("items", []):
-            items.append(
-                ItemBase(
-                    hsn=it.get("hsn"),
-                    item_name=it.get("item_name") or it.get("item", "[UNKNOWN]"),
-                    description=it.get("description"),
-                    net_price=float(it.get("net_price", 0)),
-                    qty=float(it.get("qty", 0)),
-                    value=float(it.get("value", 0)),
-                )
+        items = [
+            ItemBase(
+                hsn=it.get("hsn"),
+                item_name=it.get("item_name") or it.get("item", "[UNKNOWN]"),
+                description=it.get("description"),
+                net_price=float(it.get("net_price", 0)),
+                qty=float(it.get("qty", 0)),
+                value=float(it.get("value", 0)),
             )
+            for it in data.get("items", [])
+        ]
 
         return BillCreate(
             store_name=data.get("store_name", "Unknown Store"),

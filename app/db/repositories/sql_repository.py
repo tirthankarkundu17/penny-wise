@@ -1,12 +1,17 @@
-from typing import List, Optional, Any
+from typing import Any, List, Optional
+
 from sqlmodel import Session, select
-from app.models import User, Bill, Item
-from app.schemas import UserCreate
-from app.repositories.base import BaseRepository
+
+from app.db.repositories.base import BaseRepository
+from app.models.bill import Bill
+from app.models.item import Item
+from app.models.user import User
+from app.schemas.bill import BillCreate
+from app.schemas.user import UserCreate
 
 
 class SQLRepository(BaseRepository):
-    def __init__(self, session: Session):
+    def __init__(self, session: Session) -> None:
         self.session = session
 
     async def create_user(self, user: UserCreate, hashed_password: str) -> User:
@@ -27,7 +32,7 @@ class SQLRepository(BaseRepository):
     async def get_user_by_email(self, email: str) -> Optional[User]:
         return self.session.exec(select(User).where(User.email == email)).first()
 
-    async def create_bill(self, user_id: Any, extracted_data: Any) -> Bill:
+    async def create_bill(self, user_id: Any, extracted_data: BillCreate) -> Bill:
         db_bill = Bill(
             user_id=user_id,
             store_name=extracted_data.store_name,

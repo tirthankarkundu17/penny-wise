@@ -1,36 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Any
+from pydantic import BaseModel
+from typing import List, Optional
 from datetime import datetime
-
-
-class UserBase(BaseModel):
-    username: str
-    email: str
-    full_name: Optional[str] = None
-
-
-class UserCreate(UserBase):
-    password: str = Field(..., min_length=8)
-
-
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-
-class UserRead(UserBase):
-    id: Any
-    is_active: bool
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    expires_in: int
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
 
 
 class ItemBase(BaseModel):
@@ -40,6 +10,14 @@ class ItemBase(BaseModel):
     net_price: float
     qty: float
     value: float
+
+
+class ItemRead(ItemBase):
+    id: int
+    bill_id: int
+
+    class Config:
+        from_attributes = True
 
 
 class BillBase(BaseModel):
@@ -53,16 +31,14 @@ class BillCreate(BillBase):
     items: List[ItemBase]
 
 
-class ItemRead(ItemBase):
-    id: Any
-    bill_id: Any
-
-
 class BillRead(BillBase):
-    id: Any
-    user_id: Optional[Any]
+    id: int
+    user_id: Optional[int]
     created_at: datetime
     items: List[ItemRead]
+
+    class Config:
+        from_attributes = True
 
 
 class PriceHistory(BaseModel):
