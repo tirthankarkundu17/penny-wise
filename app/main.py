@@ -129,12 +129,14 @@ def get_price_history(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    # Simple search by item name (case-insensitive) for current user
     statement = (
         select(Item, Bill)
         .join(Bill)
         .where(Bill.user_id == current_user.id)
-        .where(Item.item_name.ilike(f"%{item_name}%"))
+        .where(
+            (Item.item_name.ilike(f"%{item_name}%"))
+            | (Item.description.ilike(f"%{item_name}%"))
+        )
         .order_by(Bill.bill_date)
     )
     results = session.exec(statement).all()
@@ -143,7 +145,13 @@ def get_price_history(
     for item, bill in results:
         history.append(
             PriceHistory(
-                date=bill.bill_date, price=item.net_price, store=bill.store_name
+                date=bill.bill_date,
+                price=item.net_price,
+                store=bill.store_name,
+                bill_date=bill.bill_date,
+                bill_number=bill.bill_number,
+                item_name=item.item_name,
+                item_description=item.description,
             )
         )
 

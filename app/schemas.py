@@ -63,3 +63,8 @@ class PriceHistory(BaseModel):
     date: str
     price: float
     store: str
+    bill_date: str
+    bill_number: Optional[str] = None
+    item_name: str
+    item_description: Optional[str] = None
+    
