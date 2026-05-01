@@ -1,32 +1,88 @@
 {
     "store_name": "SMART BAZAAR",
-    "bill_date": "2023-05-20",
-    "bill_number": "129013601525",
+    "bill_date": "20/05/2023",
+    "bill_number": "1290136010526",
     "items": [
         {
-            "hsn": "0",
-            "item": "1",
-            "description": "",
-            "net_price": 511.31,
-            "qty": 1.0,
-            "value": 511.31
-        },
-        {
-            "hsn": "0",
-            "item": "1",
-            "description": "",
+            "hsn": "3003",
+            "item": "THICKER",
+            "description": "THICKER",
             "net_price": 54.91,
             "qty": 1.0,
             "value": 54.91
         },
         {
-            "hsn": "0",
-            "item": "1",
-            "description": "",
-            "net_price": 55.47,
+            "hsn": "00630",
+            "item": "LIONCARE",
+            "description": "LIONCARE",
+            "net_price": 54.91,
             "qty": 1.0,
-            "value": 55.47
+            "value": 54.91
+        },
+        {
+            "hsn": "01710",
+            "item": "SALAD",
+            "description": "SALAD",
+            "net_price": 132.0,
+            "qty": 1.0,
+            "value": 132.0
+        },
+        {
+            "hsn": "01710",
+            "item": "SALAD",
+            "description": "SALAD",
+            "net_price": 132.0,
+            "qty": 1.0,
+            "value": 132.0
+        },
+        {
+            "hsn": "21060",
+            "item": "PRANGOLI",
+            "description": "PRANGOLI",
+            "net_price": 215.0,
+            "qty": 1.0,
+            "value": 215.0
+        },
+        {
+            "hsn": "19050",
+            "item": "PARLE",
+            "description": "PARLE",
+            "net_price": 102.5,
+            "qty": 1.0,
+            "value": 102.5
+        },
+        {
+            "hsn": "19050",
+            "item": "PARLE",
+            "description": "PARLE",
+            "net_price": 102.5,
+            "qty": 1.0,
+            "value": 102.5
+        },
+        {
+            "hsn": "3003",
+            "item": "BUST",
+            "description": "BUST",
+            "net_price": 140.0,
+            "qty": 1.0,
+            "value": 140.0
+        },
+        {
+            "hsn": "3003",
+            "item": "BUST",
+            "description": "BUST",
+            "net_price": 140.0,
+            "qty": 1.0,
+            "value": 140.0
+        },
+        {
+            "hsn": "3003",
+            "item": "BUST",
+            "description": "BUST",
+            "net_price": 140.0,
+            "qty": 1.0,
+            "value": 140.0
         }
     ],
-    "grand_total": 1120.38
+    "grand_total": 3545.49
 }
