@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 
@@ -10,6 +10,14 @@ class ItemBase(BaseModel):
     net_price: float
     qty: float
     value: float
+
+
+class ItemRead(ItemBase):
+    id: Any
+    bill_id: Any
+
+    class Config:
+        from_attributes = True
 
 
 class BillBase(BaseModel):
@@ -23,18 +31,21 @@ class BillCreate(BillBase):
     items: List[ItemBase]
 
 
-class ItemRead(ItemBase):
-    id: int
-    bill_id: int
-
-
 class BillRead(BillBase):
-    id: int
+    id: Any
+    user_id: Optional[Any]
     created_at: datetime
     items: List[ItemRead]
+
+    class Config:
+        from_attributes = True
 
 
 class PriceHistory(BaseModel):
     date: str
     price: float
     store: str
+    bill_date: str
+    bill_number: Optional[str] = None
+    item_name: str
+    item_description: Optional[str] = None

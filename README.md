@@ -1,18 +1,21 @@
 # Penny Wise 🦉💰
 
-Penny Wise is an AI-powered grocery tracking application that helps you monitor your spending and track price changes over time. By simply uploading a photo of your receipt, Penny Wise uses the **Gemini API** to extract item details, prices, and quantities, storing them in a local database for long-term analytics.
+Penny Wise is an AI-powered grocery tracking application that helps you monitor your spending and track price changes over time. By simply uploading a photo of your receipt, Penny Wise uses the **Gemini API** to extract item details, prices, and quantities, storing them in your choice of database (SQLite or MongoDB) for long-term analytics.
 
 ## ✨ Features
 
-- **Automated Receipt Extraction**: Powered by Gemini 2.5 Flash for high-accuracy OCR and data structuring.
-- **Price History Tracking**: Monitor how the prices of your favorite items change over months.
+- **User Authentication**: Secure register and login system with JWT tokens.
+- **Automated Receipt Extraction**: Powered by Gemini API for high-accuracy OCR and data structuring.
+- **Price History Tracking**: Monitor how the prices of your favorite items change over months, specific to your user account.
+- **Database Agnostic**: Easily swap between **SQLite** and **MongoDB** via configuration.
 - **FastAPI Backend**: High-performance API for fast processing and extensibility.
-- **Local Storage**: Uses SQLModel and SQLite to keep your data private and accessible.
 
 ## 🛠️ Tech Stack
 
 - **Backend**: FastAPI, SQLModel (SQLAlchemy)
+- **Database**: SQLite (default) or MongoDB (via Motor)
 - **AI**: Gemini API (`google-genai`)
+- **Authentication**: JWT, Passlib (PBKDF2)
 - **Package Management**: [uv](https://github.com/astral-sh/uv)
 
 ## 🚀 Getting Started
@@ -31,9 +34,17 @@ Penny Wise is an AI-powered grocery tracking application that helps you monitor 
    ```
 
 2. **Configure Environment Variables**:
-   Create a `.env` file in the root directory and add your API key:
+   Create a `.env` file in the root directory and add the following:
    ```env
    GEMINI_API_KEY=your_api_key_here
+   SECRET_KEY=your_random_secret_key_for_jwt
+   
+   # Database Configuration
+   DATABASE_TYPE=sqlite  # Options: sqlite, mongodb
+   
+   # Required only if using MongoDB
+   MONGODB_URL=mongodb://localhost:27017
+   DATABASE_NAME=pennywise
    ```
 
 3. **Install Dependencies**:
@@ -72,14 +83,19 @@ Visit `http://127.0.0.1:8000/docs` in your browser to access the interactive API
 ```text
 penny-wise/
 ├── app/
-│   ├── main.py          # FastAPI entry point & routes
-│   ├── models.py        # Database models (SQLModel)
-│   ├── schemas.py       # Pydantic validation schemas
-│   ├── database.py      # SQLite connection & session management
+│   ├── main.py              # FastAPI entry point & routes
+│   ├── models.py            # Database models (SQLModel)
+│   ├── schemas.py           # Pydantic validation schemas
+│   ├── database.py          # DB connection management (SQL/NoSQL)
+│   ├── auth.py              # JWT and Password logic
+│   ├── repositories/        # Database abstraction layer
+│   │   ├── base.py          # Repository Interface
+│   │   ├── sql_repository.py # SQLite Implementation
+│   │   └── mongodb_repository.py # MongoDB Implementation
 │   └── services/
 │       └── gemini_service.py # Gemini API integration
-├── pyproject.toml       # Project dependencies
-└── database.db          # Local SQLite database (auto-generated)
+├── pyproject.toml           # Project dependencies
+└── database.db              # Local SQLite database (auto-generated)
 ```
 
 ## 📊 Analytics

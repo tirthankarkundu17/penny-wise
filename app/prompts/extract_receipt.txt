@@ -1,0 +1,26 @@
+Transcribe the following details from this bill image into a JSON object.
+Fields to extract: Store Name, Bill Date, Bill Number, Grand Total.
+For each item, extract: HSN Code, Item Name, Description, Net Price, Quantity (Qty), and Value.
+
+Strictly follow this JSON schema:
+{
+  "store_name": "string",
+  "bill_date": "string",
+  "bill_number": "string",
+  "items": [
+    {
+      "hsn": "string",
+      "item_name": "string",
+      "description": "string",
+      "net_price": 0.00,
+      "qty": 0.0,
+      "value": 0.00
+    }
+  ],
+  "grand_total": 0.00
+}
+
+Important:
+- If HSN is missing for an item, leave it as null.
+- Do not guess names; if unclear, mark as [UNCLEAR].
+- Ensure 'value' equals 'qty' multiplied by 'net_price'.
