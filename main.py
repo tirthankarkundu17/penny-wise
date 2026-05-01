@@ -14,16 +14,64 @@ def extract_bill():
         sys.exit(1)
 
     print(f"Using uv to run extraction on {IMAGE_PATH}...")
+    
+    # prompt = """
+    # Analyze this grocery bill image. Extract the following details into a structured JSON object.
+    
+    # For each line item, capture: HSN code, Item name, Description, Net Price, Quantity, and final Value.
+    # Also extract the Store Name, Bill Date, Bill Number, and Grand Total.
+
+    # Return ONLY a valid JSON object in this exact format:
+    # {
+    #   "store_name": "string",
+    #   "bill_date": "string",
+    #   "bill_number": "string",
+    #   "items": [
+    #     {
+    #       "hsn": "string",
+    #       "item": "string",
+    #       "description": "string",
+    #       "net_price": 0.00,
+    #       "qty": 0,
+    #       "value": 0.00
+    #     }
+    #   ],
+    #   "grand_total": 0.00
+    # }
+    # """
 
     prompt = """
-    Analyze this grocery bill. Extract store name, items (name/price), and total.
-    Return ONLY a valid JSON object:
+    You are a high-precision OCR assistant. 
+    Analyze this grocery bill image in three distinct steps:
+
+    STEP 1: Identify the main table columns (HSN, Item/Description, Price, Qty, Value).
+    STEP 2: For every line, transcribe the 'Item' and 'Description' EXACTLY as printed. 
+            Do not summarize or change abbreviations (e.g., if it says 'APL 1KG', do not write 'Apple').
+            If a name is unclear, write [UNCLEAR] instead of guessing.
+    STEP 3: Verify that the 'Value' column equals 'Qty' multiplied by 'Net Price'.
+
+    OUTPUT: Return ONLY a valid JSON object. 
+    Ensure Bill Date (format: YYYY-MM-DD) and Bill Number are extracted.
+
+    JSON SCHEMA:
     {
-      "store": "string",
-      "items": [{"name": "string", "price": 0.00}],
-      "total": 0.00
+      "store_name": "string",
+      "bill_date": "string",
+      "bill_number": "string",
+      "items": [
+        {
+          "hsn": "string",
+          "item": "string",
+          "description": "string",
+          "net_price": 0.00,
+          "qty": 0.0,
+          "value": 0.00
+        }
+      ],
+      "grand_total": 0.00
     }
     """
+
 
     try:
         response = ollama.chat(

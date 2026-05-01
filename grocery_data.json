@@ -1,0 +1,32 @@
+{
+    "store_name": "SMART BAZAAR",
+    "bill_date": "2023-05-20",
+    "bill_number": "129013601525",
+    "items": [
+        {
+            "hsn": "0",
+            "item": "1",
+            "description": "",
+            "net_price": 511.31,
+            "qty": 1.0,
+            "value": 511.31
+        },
+        {
+            "hsn": "0",
+            "item": "1",
+            "description": "",
+            "net_price": 54.91,
+            "qty": 1.0,
+            "value": 54.91
+        },
+        {
+            "hsn": "0",
+            "item": "1",
+            "description": "",
+            "net_price": 55.47,
+            "qty": 1.0,
+            "value": 55.47
+        }
+    ],
+    "grand_total": 1120.38
+}
