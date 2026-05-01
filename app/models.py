@@ -1,10 +1,10 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 
 class User(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[Any] = Field(default=None, primary_key=True)
     username: str = Field(unique=True, index=True)
     email: str = Field(unique=True, index=True)
     hashed_password: str
@@ -15,8 +15,8 @@ class User(SQLModel, table=True):
 
 
 class Item(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    bill_id: Optional[int] = Field(default=None, foreign_key="bill.id")
+    id: Optional[Any] = Field(default=None, primary_key=True)
+    bill_id: Optional[Any] = Field(default=None, foreign_key="bill.id")
     hsn: Optional[str] = None
     item_name: str
     description: Optional[str] = None
@@ -29,8 +29,8 @@ class Item(SQLModel, table=True):
 
 
 class Bill(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    id: Optional[Any] = Field(default=None, primary_key=True)
+    user_id: Optional[Any] = Field(default=None, foreign_key="user.id")
     store_name: str
     bill_date: str  # Storing as string as provided by Gemini, can be converted later
     bill_number: Optional[str] = None

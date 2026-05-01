@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 
@@ -14,7 +14,7 @@ class UserCreate(UserBase):
 
 
 class UserRead(UserBase):
-    id: int
+    id: Any
     is_active: bool
 
 
@@ -48,13 +48,13 @@ class BillCreate(BillBase):
 
 
 class ItemRead(ItemBase):
-    id: int
-    bill_id: int
+    id: Any
+    bill_id: Any
 
 
 class BillRead(BillBase):
-    id: int
-    user_id: Optional[int]
+    id: Any
+    user_id: Optional[Any]
     created_at: datetime
     items: List[ItemRead]
 

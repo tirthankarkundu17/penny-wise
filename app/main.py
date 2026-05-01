@@ -4,10 +4,12 @@ from typing import List
 import uvicorn
 
 from fastapi.security import OAuth2PasswordRequestForm
-from app.database import create_db_and_tables, get_session
+from app.database import create_db_and_tables
 from app.models import Bill, Item, User
 from app.schemas import BillRead, PriceHistory, UserCreate, UserRead, Token
 from app.services.gemini_service import GeminiService
+from app.repositories import get_repository
+from app.repositories.base import BaseRepository
 from app.auth import (
     get_current_user,
     get_password_hash,
@@ -20,37 +22,24 @@ gemini_service = GeminiService()
 
 
 @app.post("/register", response_model=UserRead)
-def register_user(user: UserCreate, session: Session = Depends(get_session)):
+def register_user(user: UserCreate, repo: BaseRepository = Depends(get_repository)):
     # Check if user already exists
-    existing_user = session.exec(
-        select(User).where(
-            (User.username == user.username) | (User.email == user.email)
-        )
-    ).first()
+    existing_user = repo.get_user_by_username(user.username) or repo.get_user_by_email(user.email)
     if existing_user:
         raise HTTPException(
             status_code=400, detail="Username or email already registered"
         )
 
     hashed_password = get_password_hash(user.password)
-    db_user = User(
-        username=user.username,
-        email=user.email,
-        hashed_password=hashed_password,
-        full_name=user.full_name,
-    )
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
-    return db_user
+    return repo.create_user(user, hashed_password)
 
 
 @app.post("/login", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    session: Session = Depends(get_session),
+    repo: BaseRepository = Depends(get_repository),
 ):
-    user = session.exec(select(User).where(User.username == form_data.username)).first()
+    user = repo.get_user_by_username(form_data.username)
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -70,7 +59,7 @@ def on_startup():
 @app.post("/upload", response_model=BillRead)
 async def upload_receipt(
     file: UploadFile = File(...),
-    session: Session = Depends(get_session),
+    repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ):
     if not file.content_type.startswith("image/"):
@@ -85,61 +74,24 @@ async def upload_receipt(
             status_code=500, detail=f"Gemini extraction failed: {str(e)}"
         )
 
-    # Save to database
-    db_bill = Bill(
-        user_id=current_user.id,
-        store_name=extracted_data.store_name,
-        bill_date=extracted_data.bill_date,
-        bill_number=extracted_data.bill_number,
-        grand_total=extracted_data.grand_total,
-    )
-    session.add(db_bill)
-    session.commit()
-    session.refresh(db_bill)
-
-    for item_data in extracted_data.items:
-        db_item = Item(
-            bill_id=db_bill.id,
-            hsn=item_data.hsn,
-            item_name=item_data.item_name,
-            description=item_data.description,
-            net_price=item_data.net_price,
-            qty=item_data.qty,
-            value=item_data.value,
-        )
-        session.add(db_item)
-
-    session.commit()
-    session.refresh(db_bill)
-    return db_bill
+    return repo.create_bill(current_user.id, extracted_data)
 
 
 @app.get("/bills", response_model=List[BillRead])
 def list_bills(
-    session: Session = Depends(get_session),
+    repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ):
-    bills = session.exec(select(Bill).where(Bill.user_id == current_user.id)).all()
-    return bills
+    return repo.get_bills_by_user(current_user.id)
 
 
 @app.get("/price-history/{item_name}", response_model=List[PriceHistory])
 def get_price_history(
     item_name: str,
-    session: Session = Depends(get_session),
+    repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ):
-    statement = (
-        select(Item, Bill)
-        .join(Bill)
-        .where(Bill.user_id == current_user.id)
-        .where(
-            (Item.item_name.ilike(f"%{item_name}%"))
-            | (Item.description.ilike(f"%{item_name}%"))
-        )
-        .order_by(Bill.bill_date)
-    )
-    results = session.exec(statement).all()
+    results = repo.get_price_history(current_user.id, item_name)
 
     history = []
     for item, bill in results:

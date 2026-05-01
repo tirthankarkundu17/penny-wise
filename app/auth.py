@@ -9,9 +9,10 @@ from passlib.context import CryptContext
 from sqlmodel import Session, select
 from dotenv import load_dotenv
 
-from app.database import get_session
 from app.models import User
 from app.schemas import TokenData
+from app.repositories import get_repository
+from app.repositories.base import BaseRepository
 
 load_dotenv()
 
@@ -46,7 +47,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
+    token: str = Depends(oauth2_scheme), 
+    repo: BaseRepository = Depends(get_repository)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -62,9 +64,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = session.exec(
-        select(User).where(User.username == token_data.username)
-    ).first()
+    user = repo.get_user_by_username(token_data.username)
     if user is None:
         raise credentials_exception
     return user
