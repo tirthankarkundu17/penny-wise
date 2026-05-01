@@ -1,4 +1,4 @@
-.PHONY: help install run dev clean format lint docker-build docker-run docker-stop docker-login docker-push docker-push-multi docker-buildx-setup
+.PHONY: help-backend install-backend run-backend dev-backend clean-backend format-backend lint-backend docker-build-backend docker-run-backend docker-stop-backend docker-login-backend docker-push-backend docker-push-multi-backend docker-buildx-setup-backend
 
 # Variables
 APP_NAME := penny-wise
@@ -11,68 +11,68 @@ PLATFORMS := linux/amd64,linux/arm64
 # Default shell
 SHELL := /bin/bash
 
-help:
+help-backend:
 	@echo "Usage:"
-	@echo "  make install            Install dependencies using uv"
-	@echo "  make run                Run the FastAPI application"
-	@echo "  make dev                Run the application in development mode with hot reload"
-	@echo "  make clean              Remove python cache files and build artifacts"
-	@echo "  make format             Format code using ruff"
-	@echo "  make lint               Check code for linting issues using ruff"
-	@echo "  make docker-build       Build the Docker image (local architecture)"
-	@echo "  make docker-run         Run the application in a Docker container"
-	@echo "  make docker-stop        Stop the Docker container"
-	@echo "  make docker-login       Login to Docker Hub"
-	@echo "  make docker-push        Tag and push the local image to Docker Hub"
-	@echo "  make docker-push-multi  Build and push multi-platform images (amd64, arm64) using buildx"
+	@echo "  make install-backend            Install dependencies using uv"
+	@echo "  make run-backend                Run the FastAPI application"
+	@echo "  make dev-backend                Run the application in development mode with hot reload"
+	@echo "  make clean-backend              Remove python cache files and build artifacts"
+	@echo "  make format-backend             Format code using ruff"
+	@echo "  make lint-backend               Check code for linting issues using ruff"
+	@echo "  make docker-build-backend       Build the Docker image (local architecture)"
+	@echo "  make docker-run-backend         Run the application in a Docker container"
+	@echo "  make docker-stop-backend        Stop the Docker container"
+	@echo "  make docker-login-backend       Login to Docker Hub"
+	@echo "  make docker-push-backend        Tag and push the local image to Docker Hub"
+	@echo "  make docker-push-multi-backend  Build and push multi-platform images (amd64, arm64) using buildx"
 
-install:
-	uv sync
+install-backend:
+	cd backend && uv sync
 
-run:
-	uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT)
+run-backend:
+	cd backend && uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT)
 
-dev:
-	uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT) --reload
+dev-backend:
+	cd backend && uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT) --reload
 
-clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.pyd" -delete
-	find . -type f -name ".DS_Store" -delete
-	rm -rf .pytest_cache
-	rm -rf .ruff_cache
-	rm -rf .mypy_cache
-	rm -rf build/
-	rm -rf dist/
-	rm -rf *.egg-info
+clean-backend:
+	cd backend && find . -type d -name "__pycache__" -exec rm -rf {} +
+	cd backend && find . -type f -name "*.pyc" -delete
+	cd backend && find . -type f -name "*.pyo" -delete
+	cd backend && find . -type f -name "*.pyd" -delete
+	cd backend && find . -type f -name ".DS_Store" -delete
+	cd backend && rm -rf .pytest_cache
+	cd backend && rm -rf .ruff_cache
+	cd backend && rm -rf .mypy_cache
+	cd backend && rm -rf build/
+	cd backend && rm -rf dist/
+	cd backend && rm -rf *.egg-info
 
-format:
-	uv run ruff format .
+format-backend:
+	cd backend && uv run ruff format .
 
-lint:
-	uv run ruff check .
+lint-backend:
+	cd backend && uv run ruff check .
 
-docker-build:
-	docker build -t $(APP_NAME) .
+docker-build-backend:
+	docker build -t $(APP_NAME) ./backend
 	docker tag $(APP_NAME) $(IMAGE_NAME)
 
-docker-run:
-	docker run -p $(PORT):$(PORT) --env-file .env --name $(APP_NAME) $(APP_NAME)
+docker-run-backend:
+	docker run -p $(PORT):$(PORT) --env-file backend/.env --name $(APP_NAME) $(APP_NAME)
 
-docker-stop:
+docker-stop-backend:
 	docker stop $(APP_NAME) || true
 	docker rm $(APP_NAME) || true
 
-docker-login:
+docker-login-backend:
 	docker login
 
-docker-push: docker-build
+docker-push-backend: docker-build-backend
 	docker push $(IMAGE_NAME)
 
-docker-buildx-setup:
+docker-buildx-setup-backend:
 	docker buildx create --use --name multi-platform-builder || docker buildx use multi-platform-builder
 
-docker-push-multi: docker-login docker-buildx-setup
-	docker buildx build --platform $(PLATFORMS) -t $(IMAGE_NAME) --push .
+docker-push-multi-backend: docker-login-backend docker-buildx-setup-backend
+	docker buildx build --platform $(PLATFORMS) -t $(IMAGE_NAME) --push ./backend
