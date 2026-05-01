@@ -3,12 +3,13 @@ from google.genai import types
 import json
 import os
 from dotenv import load_dotenv
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 load_dotenv()  # Load environment variables from .env file
 
 # CONFIGURATION
 API_KEY = os.getenv("GEMINI_API_KEY")
-IMAGE_PATH =  "D:\\Grocery\\May2026.jpg"
+IMAGE_PATH = "D:\\Grocery\\May2026.jpg"
 MODEL_ID = "gemini-2.5-flash"  # Use "gemini-1.5-pro" for even higher accuracy
 
 print(f"Using model: {MODEL_ID}")
@@ -16,6 +17,7 @@ print(f"Processing image: {IMAGE_PATH}")
 print("Initializing Gemini client...", API_KEY[:4] + "****" + API_KEY[-4:])
 client = genai.Client(api_key=API_KEY)
 
+@retry(wait=wait_fixed(2), stop=stop_after_attempt(10))
 def extract_data():
     # Structured Prompt for specific billing fields
     prompt = """
@@ -59,7 +61,7 @@ def extract_data():
                 prompt
             ],
             config=types.GenerateContentConfig(
-                response_mime_type="application/json", # Forces JSON output
+                response_mime_type="application/json",  # Forces JSON output
                 temperature=0.1
             )
         )
@@ -74,4 +76,4 @@ def extract_data():
         print(f"Error during extraction: {e}")
 
 if __name__ == "__main__":
-    extract_data()
+  extract_data()

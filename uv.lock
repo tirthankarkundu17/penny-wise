@@ -332,6 +332,7 @@ dependencies = [
     { name = "ollama" },
     { name = "pillow" },
     { name = "python-dotenv" },
+    { name = "tenacity" },
 ]
 
 [package.metadata]
@@ -340,6 +341,7 @@ requires-dist = [
     { name = "ollama", specifier = ">=0.6.2" },
     { name = "pillow", specifier = ">=12.2.0" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "tenacity", specifier = ">=9.1.4" },
 ]
 
 [[package]]
