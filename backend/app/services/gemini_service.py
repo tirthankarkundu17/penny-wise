@@ -1,5 +1,8 @@
 from pathlib import Path
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 from tenacity import retry, wait_fixed, stop_after_attempt
 from google import genai
 from google.genai import types
@@ -22,6 +25,7 @@ class GeminiService:
 
     @retry(wait=wait_fixed(2), stop=stop_after_attempt(3))
     def extract_receipt_data(self, image_bytes: bytes) -> BillCreate:
+        logger.info(f"Extracting receipt data using model: {self.model_id}")
         response = self.client.models.generate_content(
             model=self.model_id,
             contents=[
