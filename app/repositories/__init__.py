@@ -5,9 +5,9 @@ from app.repositories.sql_repository import SQLRepository
 from app.repositories.mongodb_repository import MongoDBRepository
 from app.repositories.base import BaseRepository
 
+
 def get_repository(
-    session: Session = Depends(get_session),
-    mongo_db = Depends(get_mongo_db)
+    session: Session = Depends(get_session), mongo_db=Depends(get_mongo_db)
 ) -> BaseRepository:
     if DATABASE_TYPE == "sqlite":
         return SQLRepository(session)

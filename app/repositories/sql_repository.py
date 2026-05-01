@@ -4,6 +4,7 @@ from app.models import User, Bill, Item
 from app.schemas import UserCreate
 from app.repositories.base import BaseRepository
 
+
 class SQLRepository(BaseRepository):
     def __init__(self, session: Session):
         self.session = session
@@ -49,7 +50,7 @@ class SQLRepository(BaseRepository):
                 value=item_data.value,
             )
             self.session.add(db_item)
-        
+
         self.session.commit()
         self.session.refresh(db_bill)
         return db_bill

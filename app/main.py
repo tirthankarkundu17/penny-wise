@@ -21,7 +21,9 @@ gemini_service = GeminiService()
 @app.post("/register", response_model=UserRead)
 def register_user(user: UserCreate, repo: BaseRepository = Depends(get_repository)):
     # Check if user already exists
-    existing_user = repo.get_user_by_username(user.username) or repo.get_user_by_email(user.email)
+    existing_user = repo.get_user_by_username(user.username) or repo.get_user_by_email(
+        user.email
+    )
     if existing_user:
         raise HTTPException(
             status_code=400, detail="Username or email already registered"
@@ -43,13 +45,14 @@ def login_for_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     from app.auth import ACCESS_TOKEN_EXPIRE_MINUTES
+
     access_token = create_access_token(data={"sub": user.username})
     return {
-        "access_token": access_token, 
+        "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
     }
 
 

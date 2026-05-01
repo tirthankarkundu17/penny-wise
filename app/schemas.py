@@ -73,4 +73,3 @@ class PriceHistory(BaseModel):
     bill_number: Optional[str] = None
     item_name: str
     item_description: Optional[str] = None
-    

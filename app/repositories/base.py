@@ -3,6 +3,7 @@ from typing import List, Optional, Any
 from app.models import User, Bill, Item
 from app.schemas import UserCreate, BillCreate
 
+
 class BaseRepository(ABC):
     @abstractmethod
     def create_user(self, user: UserCreate, hashed_password: str) -> User:
