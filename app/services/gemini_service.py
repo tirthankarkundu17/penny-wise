@@ -1,53 +1,32 @@
-from google import genai
-from google.genai import types
+from pathlib import Path
 import json
 from tenacity import retry, wait_fixed, stop_after_attempt
+from google import genai
+from google.genai import types
 
 from app.core.config import settings
 from app.schemas.bill import BillCreate, ItemBase
+
+_PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
+
+
+def _load_prompt(filename: str) -> str:
+    return (_PROMPTS_DIR / filename).read_text(encoding="utf-8")
 
 
 class GeminiService:
     def __init__(self) -> None:
         self.client = genai.Client(api_key=settings.gemini_api_key)
-        self.model_id = "gemini-2.5-flash"
+        self.model_id = settings.gemini_model_id
+        self._extract_receipt_prompt = _load_prompt("extract_receipt.txt")
 
     @retry(wait=wait_fixed(2), stop=stop_after_attempt(3))
     def extract_receipt_data(self, image_bytes: bytes) -> BillCreate:
-        prompt = """
-        Transcribe the following details from this bill image into a JSON object.
-        Fields to extract: Store Name, Bill Date, Bill Number, Grand Total.
-        For each item, extract: HSN Code, Item Name, Description, Net Price, Quantity (Qty), and Value.
-
-        Strictly follow this JSON schema:
-        {
-          "store_name": "string",
-          "bill_date": "string",
-          "bill_number": "string",
-          "items": [
-            {
-              "hsn": "string",
-              "item_name": "string",
-              "description": "string",
-              "net_price": 0.00,
-              "qty": 0.0,
-              "value": 0.00
-            }
-          ],
-          "grand_total": 0.00
-        }
-
-        Important:
-        - If HSN is missing for an item, leave it as null.
-        - Do not guess names; if unclear, mark as [UNCLEAR].
-        - Ensure 'value' equals 'qty' multiplied by 'net_price'.
-        """
-
         response = self.client.models.generate_content(
             model=self.model_id,
             contents=[
                 types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
-                prompt,
+                self._extract_receipt_prompt,
             ],
             config=types.GenerateContentConfig(
                 response_mime_type="application/json", temperature=0.1

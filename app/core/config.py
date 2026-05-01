@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     # External APIs
     gemini_api_key: str = ""
+    gemini_model_id: str = "gemini-2.5-flash"
 
     class Config:
         env_file = ".env"
