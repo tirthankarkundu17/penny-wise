@@ -16,3 +16,8 @@ dependencies = [
     "sqlmodel>=0.0.19",
     "python-multipart>=0.0.9",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4.0",
+]
