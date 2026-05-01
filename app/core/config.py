@@ -1,9 +1,11 @@
+from typing import List
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     # App
     app_name: str = "Penny Wise - Grocery Tracker"
+    allow_origins: List[str] = ["*"]
 
     # JWT
     secret_key: str = "your-secret-key-for-development-only"

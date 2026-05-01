@@ -1,6 +1,14 @@
 import uvicorn
 import logging
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
+from pymongo.errors import DuplicateKeyError
+
+from app.core.config import settings
+from app.db.database import create_db_and_tables
+from app.routers import auth_router, bills_router, analytics_router
 
 # Configure logging
 logging.basicConfig(
@@ -8,18 +16,19 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-from app.core.config import settings
-from app.db.database import create_db_and_tables
-from app.routers import auth_router, bills_router, analytics_router
-
-from fastapi.responses import JSONResponse
-from sqlalchemy.exc import IntegrityError
-from pymongo.errors import DuplicateKeyError
-
 app = FastAPI(
     title=settings.app_name,
     description="AI-powered grocery receipt tracker with JWT auth and swappable database backends.",
     version="1.0.0",
+)
+
+# ── CORS ──────────────────────────────────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allow_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
