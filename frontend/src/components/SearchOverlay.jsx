@@ -89,7 +89,7 @@ const SearchOverlay = ({ onClose }) => {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
                 <TrendingUp size={24} color="var(--primary)" />
-                <h2>Price History for "{query}"</h2>
+                <h2>Price History for "{query}" ({results.length})</h2>
               </div>
 
               {results.length === 0 ? (
@@ -108,15 +108,33 @@ const SearchOverlay = ({ onClose }) => {
                       style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem' }}
                     >
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                          <Store size={16} color="var(--primary)" />
-                          <span style={{ fontWeight: '600' }}>{item.store}</span>
+                        <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text)', marginBottom: '0.25rem' }}>
+                          {item.item_name}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                          <Calendar size={14} />
-                          {item.date}
-                          {item.item_description && <span>• {item.item_description}</span>}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <Store size={14} color="var(--primary)" />
+                            <span>{item.store}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <Calendar size={14} />
+                            <span>{item.date}</span>
+                          </div>
                         </div>
+                        {item.item_description && (
+                          <div style={{ 
+                            marginTop: '0.5rem', 
+                            fontSize: '0.8125rem', 
+                            color: 'var(--text-muted)',
+                            background: 'rgba(255,255,255,0.03)',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: 'var(--radius-sm)',
+                            borderLeft: '2px solid var(--primary)',
+                            display: 'inline-block'
+                          }}>
+                            {item.item_description}
+                          </div>
+                        )}
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontWeight: '700', fontSize: '1.25rem', color: 'var(--text)' }}>
