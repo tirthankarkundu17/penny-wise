@@ -9,7 +9,7 @@ from app.schemas import BillCreate, ItemBase
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY")
-MODEL_ID = "gemini-2.0-flash" # The user mentioned gemini-2.5-flash but the current SDK might use gemini-2.0-flash or gemini-1.5-flash
+MODEL_ID = "gemini-2.5-flash"
 
 class GeminiService:
     def __init__(self):
