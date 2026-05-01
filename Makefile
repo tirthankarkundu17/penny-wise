@@ -1,18 +1,23 @@
-.PHONY: help-backend install-backend run-backend dev-backend clean-backend format-backend lint-backend docker-build-backend docker-run-backend docker-stop-backend docker-login-backend docker-push-backend docker-push-multi-backend docker-buildx-setup-backend
+.PHONY: help-backend install-backend run-backend dev-backend clean-backend format-backend lint-backend docker-build-backend docker-run-backend docker-stop-backend docker-login-backend docker-push-backend docker-push-multi-backend docker-buildx-setup-backend \
+        help-frontend install-frontend dev-frontend build-frontend preview-frontend lint-frontend clean-frontend docker-build-frontend docker-run-frontend
 
 # Variables
 APP_NAME := penny-wise
 PORT := 8000
+FE_PORT := 5173
 DOCKER_USER := tirthankark
 VERSION := latest
 IMAGE_NAME := $(DOCKER_USER)/$(APP_NAME):$(VERSION)
+FE_IMAGE_NAME := $(DOCKER_USER)/$(APP_NAME)-frontend:$(VERSION)
 PLATFORMS := linux/amd64,linux/arm64
 
 # Default shell
 SHELL := /bin/bash
 
+# --- Backend ---
+
 help-backend:
-	@echo "Usage:"
+	@echo "Backend Usage:"
 	@echo "  make install-backend            Install dependencies using uv"
 	@echo "  make run-backend                Run the FastAPI application"
 	@echo "  make dev-backend                Run the application in development mode with hot reload"
@@ -76,3 +81,41 @@ docker-buildx-setup-backend:
 
 docker-push-multi-backend: docker-login-backend docker-buildx-setup-backend
 	docker buildx build --platform $(PLATFORMS) -t $(IMAGE_NAME) --push ./backend
+
+# --- Frontend ---
+
+help-frontend:
+	@echo "Frontend Usage:"
+	@echo "  make install-frontend           Install dependencies"
+	@echo "  make dev-frontend               Run development server"
+	@echo "  make build-frontend             Build for production"
+	@echo "  make preview-frontend           Preview the production build"
+	@echo "  make lint-frontend              Run linting"
+	@echo "  make clean-frontend             Remove build artifacts and node_modules"
+	@echo "  make docker-build-frontend      Build Docker image"
+	@echo "  make docker-run-frontend        Run Docker container"
+
+install-frontend:
+	cd frontend && npm install
+
+dev-frontend:
+	cd frontend && npm run dev
+
+build-frontend:
+	cd frontend && npm run build
+
+preview-frontend:
+	cd frontend && npm run preview
+
+lint-frontend:
+	cd frontend && npm run lint
+
+clean-frontend:
+	cd frontend && rm -rf dist node_modules .vite
+
+docker-build-frontend:
+	docker build -t $(APP_NAME)-frontend ./frontend
+	docker tag $(APP_NAME)-frontend $(FE_IMAGE_NAME)
+
+docker-run-frontend:
+	docker run -p $(FE_PORT):80 --name $(APP_NAME)-frontend $(APP_NAME)-frontend
