@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Search, TrendingUp, Store, Calendar, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { X, Search, TrendingUp, Store, Calendar } from 'lucide-react';
 import { analyticsApi } from '../services/api';
 
 const SearchOverlay = ({ onClose }) => {

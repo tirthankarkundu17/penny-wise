@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Store, Calendar, Receipt, Hash, CreditCard } from 'lucide-react';
+import { X, Store, Calendar, Hash, CreditCard } from 'lucide-react';
 
 const BillDetails = ({ bill, onClose }) => {
   return (

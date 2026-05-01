@@ -1,5 +1,5 @@
 .PHONY: help-backend install-backend run-backend dev-backend clean-backend format-backend lint-backend docker-build-backend docker-run-backend docker-stop-backend docker-login-backend docker-push-backend docker-push-multi-backend docker-buildx-setup-backend \
-        help-frontend install-frontend dev-frontend build-frontend preview-frontend lint-frontend clean-frontend docker-build-frontend docker-run-frontend
+        help-frontend install-frontend dev-frontend build-frontend preview-frontend lint-frontend clean-frontend docker-build-frontend docker-run-frontend docker-login-frontend docker-push-frontend docker-push-multi-frontend
 
 # Variables
 APP_NAME := penny-wise
@@ -94,6 +94,9 @@ help-frontend:
 	@echo "  make clean-frontend             Remove build artifacts and node_modules"
 	@echo "  make docker-build-frontend      Build Docker image"
 	@echo "  make docker-run-frontend        Run Docker container"
+	@echo "  make docker-login-frontend      Login to Docker Hub"
+	@echo "  make docker-push-frontend       Tag and push the frontend image to Docker Hub"
+	@echo "  make docker-push-multi-frontend Build and push multi-platform frontend images"
 
 install-frontend:
 	cd frontend && npm install
@@ -119,3 +122,12 @@ docker-build-frontend:
 
 docker-run-frontend:
 	docker run -p $(FE_PORT):80 --name $(APP_NAME)-frontend $(APP_NAME)-frontend
+
+docker-login-frontend:
+	docker login
+
+docker-push-frontend: docker-build-frontend
+	docker push $(FE_IMAGE_NAME)
+
+docker-push-multi-frontend: docker-login-frontend docker-buildx-setup-backend
+	docker buildx build --platform $(PLATFORMS) -t $(FE_IMAGE_NAME) --push ./frontend

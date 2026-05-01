@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { billsApi } from '../services/api';
-import { Plus, Receipt, Search, LogOut, ChevronRight, Calendar, Store, CreditCard } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Plus, Receipt, Search, LogOut, ChevronRight, Calendar, Store } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
 import BillDetails from '../components/BillDetails';
 import UploadModal from '../components/UploadModal';
 import SearchOverlay from '../components/SearchOverlay';
@@ -16,7 +15,7 @@ const Dashboard = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { logout, user } = useAuth();
 
-  const fetchBills = async () => {
+  const fetchBills = useCallback(async () => {
     try {
       const response = await billsApi.list();
       setBills(response.data);
@@ -25,11 +24,12 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBills();
-  }, []);
+  }, [fetchBills]);
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>

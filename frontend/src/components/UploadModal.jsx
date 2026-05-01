@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Upload, Loader2, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import { billsApi } from '../services/api';
