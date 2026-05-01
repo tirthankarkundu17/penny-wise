@@ -3,7 +3,7 @@
 # Variables
 APP_NAME := penny-wise
 PORT := 8000
-DOCKER_USER := tirthankarkundu17
+DOCKER_USER := tirthankark
 VERSION := latest
 IMAGE_NAME := $(DOCKER_USER)/$(APP_NAME):$(VERSION)
 PLATFORMS := linux/amd64,linux/arm64
