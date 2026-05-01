@@ -6,7 +6,6 @@ Penny Wise is an AI-powered grocery tracking application that helps you monitor 
 
 - **Automated Receipt Extraction**: Powered by Gemini 2.5 Flash for high-accuracy OCR and data structuring.
 - **Price History Tracking**: Monitor how the prices of your favorite items change over months.
-- **Interactive Dashboard**: A modern, dark-themed UI to manage your bills and view recent purchases.
 - **FastAPI Backend**: High-performance API for fast processing and extensibility.
 - **Local Storage**: Uses SQLModel and SQLite to keep your data private and accessible.
 
@@ -14,7 +13,6 @@ Penny Wise is an AI-powered grocery tracking application that helps you monitor 
 
 - **Backend**: FastAPI, SQLModel (SQLAlchemy)
 - **AI**: Gemini API (`google-genai`)
-- **Frontend**: Vanilla HTML/CSS (Modern Glassmorphism)
 - **Package Management**: [uv](https://github.com/astral-sh/uv)
 
 ## 🚀 Getting Started
@@ -55,7 +53,19 @@ uv run python -m app.main
 uv run uvicorn app.main:app --reload
 ```
 
-Visit `http://127.0.0.1:8000` in your browser to access the dashboard.
+Visit `http://127.0.0.1:8000/docs` in your browser to access the interactive API documentation (Swagger UI).
+
+### 🐳 Running with Docker
+
+1. **Build the image**:
+   ```bash
+   docker build -t penny-wise .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -p 8000:8000 --env-file .env penny-wise
+   ```
 
 ## 📁 Project Structure
 
@@ -68,8 +78,6 @@ penny-wise/
 │   ├── database.py      # SQLite connection & session management
 │   └── services/
 │       └── gemini_service.py # Gemini API integration
-├── static/
-│   └── index.html       # Dashboard UI
 ├── pyproject.toml       # Project dependencies
 └── database.db          # Local SQLite database (auto-generated)
 ```
