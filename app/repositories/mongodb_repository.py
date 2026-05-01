@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional
+from typing import List, Optional, Any
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.models import User, Bill, Item
 from app.schemas import UserCreate
@@ -10,18 +10,8 @@ from datetime import datetime
 class MongoDBRepository(BaseRepository):
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
-        # We need to use sync wrappers or make the base repo async.
-        # Given the current sync architecture of FastAPI endpoints (except upload),
-        # we'll use a trick or keep it async and update main.py.
-        # But wait, BaseRepository is sync.
-        # I should probably update BaseRepository to be async if I want to use Motor properly.
-        pass
 
-    def _sync_wait(self, coro):
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(coro)
-
-    def create_user(self, user: UserCreate, hashed_password: str) -> User:
+    async def create_user(self, user: UserCreate, hashed_password: str) -> User:
         db_user_dict = {
             "username": user.username,
             "email": user.email,
@@ -30,25 +20,25 @@ class MongoDBRepository(BaseRepository):
             "is_active": True,
             "created_at": datetime.utcnow(),
         }
-        result = self._sync_wait(self.db.users.insert_one(db_user_dict))
+        result = await self.db.users.insert_one(db_user_dict)
         db_user_dict["id"] = str(result.inserted_id)
         return User(**db_user_dict)
 
-    def get_user_by_username(self, username: str) -> Optional[User]:
-        user_dict = self._sync_wait(self.db.users.find_one({"username": username}))
+    async def get_user_by_username(self, username: str) -> Optional[User]:
+        user_dict = await self.db.users.find_one({"username": username})
         if user_dict:
             user_dict["id"] = str(user_dict.pop("_id"))
             return User(**user_dict)
         return None
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
-        user_dict = self._sync_wait(self.db.users.find_one({"email": email}))
+    async def get_user_by_email(self, email: str) -> Optional[User]:
+        user_dict = await self.db.users.find_one({"email": email})
         if user_dict:
             user_dict["id"] = str(user_dict.pop("_id"))
             return User(**user_dict)
         return None
 
-    def create_bill(self, user_id: any, extracted_data: any) -> Bill:
+    async def create_bill(self, user_id: Any, extracted_data: Any) -> Bill:
         bill_dict = {
             "user_id": str(user_id),
             "store_name": extracted_data.store_name,
@@ -58,7 +48,7 @@ class MongoDBRepository(BaseRepository):
             "created_at": datetime.utcnow(),
             "items": [item.dict() for item in extracted_data.items],
         }
-        result = self._sync_wait(self.db.bills.insert_one(bill_dict))
+        result = await self.db.bills.insert_one(bill_dict)
         bill_dict["id"] = str(result.inserted_id)
 
         # Format items for return
@@ -73,9 +63,9 @@ class MongoDBRepository(BaseRepository):
         bill.items = items
         return bill
 
-    def get_bills_by_user(self, user_id: any) -> List[Bill]:
+    async def get_bills_by_user(self, user_id: Any) -> List[Bill]:
         cursor = self.db.bills.find({"user_id": str(user_id)})
-        bills_dicts = self._sync_wait(cursor.to_list(length=100))
+        bills_dicts = await cursor.to_list(length=100)
 
         bills = []
         for d in bills_dicts:
@@ -90,7 +80,7 @@ class MongoDBRepository(BaseRepository):
             bills.append(bill)
         return bills
 
-    def get_price_history(self, user_id: any, item_name: str) -> List[any]:
+    async def get_price_history(self, user_id: Any, item_name: str) -> List[Any]:
         # MongoDB Aggregation to simulate join
         pipeline = [
             {"$match": {"user_id": str(user_id)}},
@@ -106,7 +96,7 @@ class MongoDBRepository(BaseRepository):
             {"$sort": {"bill_date": 1}},
         ]
         cursor = self.db.bills.aggregate(pipeline)
-        results = self._sync_wait(cursor.to_list(length=100))
+        results = await cursor.to_list(length=100)
 
         history = []
         for r in results:

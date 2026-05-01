@@ -19,26 +19,28 @@ gemini_service = GeminiService()
 
 
 @app.post("/register", response_model=UserRead)
-def register_user(user: UserCreate, repo: BaseRepository = Depends(get_repository)):
+async def register_user(
+    user: UserCreate, repo: BaseRepository = Depends(get_repository)
+):
     # Check if user already exists
-    existing_user = repo.get_user_by_username(user.username) or repo.get_user_by_email(
-        user.email
-    )
+    existing_user = await repo.get_user_by_username(
+        user.username
+    ) or await repo.get_user_by_email(user.email)
     if existing_user:
         raise HTTPException(
             status_code=400, detail="Username or email already registered"
         )
 
     hashed_password = get_password_hash(user.password)
-    return repo.create_user(user, hashed_password)
+    return await repo.create_user(user, hashed_password)
 
 
 @app.post("/login", response_model=Token)
-def login_for_access_token(
+async def login_for_access_token(
     login_data: UserLogin,
     repo: BaseRepository = Depends(get_repository),
 ):
-    user = repo.get_user_by_email(login_data.email)
+    user = await repo.get_user_by_email(login_data.email)
     if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,24 +81,24 @@ async def upload_receipt(
             status_code=500, detail=f"Gemini extraction failed: {str(e)}"
         )
 
-    return repo.create_bill(current_user.id, extracted_data)
+    return await repo.create_bill(current_user.id, extracted_data)
 
 
 @app.get("/bills", response_model=List[BillRead])
-def list_bills(
+async def list_bills(
     repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ):
-    return repo.get_bills_by_user(current_user.id)
+    return await repo.get_bills_by_user(current_user.id)
 
 
 @app.get("/price-history/{item_name}", response_model=List[PriceHistory])
-def get_price_history(
+async def get_price_history(
     item_name: str,
     repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ):
-    results = repo.get_price_history(current_user.id, item_name)
+    results = await repo.get_price_history(current_user.id, item_name)
 
     history = []
     for item, bill in results:

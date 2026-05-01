@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from sqlmodel import Session, select
 from app.models import User, Bill, Item
 from app.schemas import UserCreate
@@ -9,7 +9,7 @@ class SQLRepository(BaseRepository):
     def __init__(self, session: Session):
         self.session = session
 
-    def create_user(self, user: UserCreate, hashed_password: str) -> User:
+    async def create_user(self, user: UserCreate, hashed_password: str) -> User:
         db_user = User(
             username=user.username,
             email=user.email,
@@ -21,13 +21,13 @@ class SQLRepository(BaseRepository):
         self.session.refresh(db_user)
         return db_user
 
-    def get_user_by_username(self, username: str) -> Optional[User]:
+    async def get_user_by_username(self, username: str) -> Optional[User]:
         return self.session.exec(select(User).where(User.username == username)).first()
 
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> Optional[User]:
         return self.session.exec(select(User).where(User.email == email)).first()
 
-    def create_bill(self, user_id: int, extracted_data: any) -> Bill:
+    async def create_bill(self, user_id: Any, extracted_data: Any) -> Bill:
         db_bill = Bill(
             user_id=user_id,
             store_name=extracted_data.store_name,
@@ -55,10 +55,10 @@ class SQLRepository(BaseRepository):
         self.session.refresh(db_bill)
         return db_bill
 
-    def get_bills_by_user(self, user_id: int) -> List[Bill]:
+    async def get_bills_by_user(self, user_id: Any) -> List[Bill]:
         return self.session.exec(select(Bill).where(Bill.user_id == user_id)).all()
 
-    def get_price_history(self, user_id: int, item_name: str) -> List[any]:
+    async def get_price_history(self, user_id: Any, item_name: str) -> List[Any]:
         statement = (
             select(Item, Bill)
             .join(Bill)

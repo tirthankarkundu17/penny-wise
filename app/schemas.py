@@ -19,7 +19,7 @@ class UserLogin(BaseModel):
 
 
 class UserRead(UserBase):
-    id: str
+    id: Any
     is_active: bool
 
 
@@ -54,13 +54,13 @@ class BillCreate(BillBase):
 
 
 class ItemRead(ItemBase):
-    id: str
-    bill_id: str
+    id: Any
+    bill_id: Any
 
 
 class BillRead(BillBase):
-    id: str
-    user_id: Optional[str]
+    id: Any
+    user_id: Optional[Any]
     created_at: datetime
     items: List[ItemRead]
 
