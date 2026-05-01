@@ -1,15 +1,65 @@
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import List
 import uvicorn
 
+from fastapi.security import OAuth2PasswordRequestForm
 from app.database import create_db_and_tables, get_session
-from app.models import Bill, Item
-from app.schemas import BillRead, PriceHistory
+from app.models import Bill, Item, User
+from app.schemas import BillRead, PriceHistory, UserCreate, UserRead, Token
 from app.services.gemini_service import GeminiService
+from app.auth import (
+    get_current_user,
+    get_password_hash,
+    verify_password,
+    create_access_token,
+)
 
 app = FastAPI(title="Penny Wise - Grocery Tracker")
 gemini_service = GeminiService()
+
+
+@app.post("/register", response_model=UserRead)
+def register_user(user: UserCreate, session: Session = Depends(get_session)):
+    # Check if user already exists
+    existing_user = session.exec(
+        select(User).where(
+            (User.username == user.username) | (User.email == user.email)
+        )
+    ).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=400, detail="Username or email already registered"
+        )
+
+    hashed_password = get_password_hash(user.password)
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password,
+        full_name=user.full_name,
+    )
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
+
+
+@app.post("/login", response_model=Token)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = session.exec(select(User).where(User.username == form_data.username)).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @app.on_event("startup")
@@ -19,7 +69,9 @@ def on_startup():
 
 @app.post("/upload", response_model=BillRead)
 async def upload_receipt(
-    file: UploadFile = File(...), session: Session = Depends(get_session)
+    file: UploadFile = File(...),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
@@ -35,6 +87,7 @@ async def upload_receipt(
 
     # Save to database
     db_bill = Bill(
+        user_id=current_user.id,
         store_name=extracted_data.store_name,
         bill_date=extracted_data.bill_date,
         bill_number=extracted_data.bill_number,
@@ -62,17 +115,25 @@ async def upload_receipt(
 
 
 @app.get("/bills", response_model=List[BillRead])
-def list_bills(session: Session = Depends(get_session)):
-    bills = session.exec(select(Bill)).all()
+def list_bills(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    bills = session.exec(select(Bill).where(Bill.user_id == current_user.id)).all()
     return bills
 
 
 @app.get("/price-history/{item_name}", response_model=List[PriceHistory])
-def get_price_history(item_name: str, session: Session = Depends(get_session)):
-    # Simple search by item name (case-insensitive)
+def get_price_history(
+    item_name: str,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    # Simple search by item name (case-insensitive) for current user
     statement = (
         select(Item, Bill)
         .join(Bill)
+        .where(Bill.user_id == current_user.id)
         .where(Item.item_name.ilike(f"%{item_name}%"))
         .order_by(Bill.bill_date)
     )
