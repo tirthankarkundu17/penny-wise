@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Any
 
 
 class UserBase(BaseModel):
@@ -18,7 +18,7 @@ class UserLogin(BaseModel):
 
 
 class UserRead(UserBase):
-    id: int
+    id: Any
     is_active: bool
 
     class Config:

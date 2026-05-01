@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 
 
@@ -13,8 +13,8 @@ class ItemBase(BaseModel):
 
 
 class ItemRead(ItemBase):
-    id: int
-    bill_id: int
+    id: Any
+    bill_id: Any
 
     class Config:
         from_attributes = True
@@ -32,8 +32,8 @@ class BillCreate(BillBase):
 
 
 class BillRead(BillBase):
-    id: int
-    user_id: Optional[int]
+    id: Any
+    user_id: Optional[Any]
     created_at: datetime
     items: List[ItemRead]
 
