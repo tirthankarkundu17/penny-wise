@@ -1,5 +1,4 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
-from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from typing import List
 import uvicorn
@@ -11,15 +10,6 @@ from app.services.gemini_service import GeminiService
 
 app = FastAPI(title="Penny Wise - Grocery Tracker")
 gemini_service = GeminiService()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-@app.get("/")
-async def read_index():
-    from fastapi.responses import FileResponse
-
-    return FileResponse("static/index.html")
 
 
 @app.on_event("startup")
