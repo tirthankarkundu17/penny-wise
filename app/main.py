@@ -19,8 +19,8 @@ app.include_router(analytics_router)
 
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 @app.on_event("startup")
-def on_startup() -> None:
-    create_db_and_tables()
+async def on_startup() -> None:
+    await create_db_and_tables()
 
 
 if __name__ == "__main__":

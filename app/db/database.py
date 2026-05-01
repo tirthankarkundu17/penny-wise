@@ -8,13 +8,22 @@ _sqlite_url = "sqlite:///database.db"
 _engine = create_engine(_sqlite_url, connect_args={"check_same_thread": False})
 
 
-def create_db_and_tables() -> None:
-    """Create all SQLModel tables. Called once at startup."""
+async def create_db_and_tables() -> None:
+    """Create all SQLModel tables or MongoDB indices. Called once at startup."""
     if settings.database_type == "sqlite":
         # Ensure all models are imported before create_all
         import app.models  # noqa: F401
 
         SQLModel.metadata.create_all(_engine)
+    elif settings.database_type == "mongodb":
+        # Create unique index for bills (store_name + bill_number)
+        await _mongo_db.bills.create_index(
+            [("bill_number", 1), ("store_name", 1)],
+            unique=True,
+            partialFilterExpression={
+                "bill_number": {"$type": "string"}
+            },  # Don't conflict on nulls
+        )
 
 
 def get_session():
