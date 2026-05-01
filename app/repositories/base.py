@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Any
 from app.models import User, Bill, Item
 from app.schemas import UserCreate, BillCreate
 
@@ -17,13 +17,13 @@ class BaseRepository(ABC):
         pass
 
     @abstractmethod
-    def create_bill(self, user_id: int, bill_data: any) -> Bill:
+    def create_bill(self, user_id: Any, bill_data: Any) -> Bill:
         pass
 
     @abstractmethod
-    def get_bills_by_user(self, user_id: int) -> List[Bill]:
+    def get_bills_by_user(self, user_id: Any) -> List[Bill]:
         pass
 
     @abstractmethod
-    def get_price_history(self, user_id: int, item_name: str) -> List[any]:
+    def get_price_history(self, user_id: Any, item_name: str) -> List[Any]:
         pass

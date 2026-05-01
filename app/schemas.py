@@ -13,14 +13,20 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
 
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
 class UserRead(UserBase):
-    id: Any
+    id: str
     is_active: bool
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expires_in: int
 
 
 class TokenData(BaseModel):
@@ -48,13 +54,13 @@ class BillCreate(BillBase):
 
 
 class ItemRead(ItemBase):
-    id: Any
-    bill_id: Any
+    id: str
+    bill_id: str
 
 
 class BillRead(BillBase):
-    id: Any
-    user_id: Optional[Any]
+    id: str
+    user_id: Optional[str]
     created_at: datetime
     items: List[ItemRead]
 

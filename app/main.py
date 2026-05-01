@@ -1,12 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
-from sqlmodel import Session, select
 from typing import List
 import uvicorn
-
-from fastapi.security import OAuth2PasswordRequestForm
 from app.database import create_db_and_tables
 from app.models import Bill, Item, User
-from app.schemas import BillRead, PriceHistory, UserCreate, UserRead, Token
+from app.schemas import BillRead, PriceHistory, UserCreate, UserRead, Token, UserLogin
 from app.services.gemini_service import GeminiService
 from app.repositories import get_repository
 from app.repositories.base import BaseRepository
@@ -36,19 +33,24 @@ def register_user(user: UserCreate, repo: BaseRepository = Depends(get_repositor
 
 @app.post("/login", response_model=Token)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    login_data: UserLogin,
     repo: BaseRepository = Depends(get_repository),
 ):
-    user = repo.get_user_by_username(form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    user = repo.get_user_by_email(login_data.email)
+    if not user or not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
+    
+    from app.auth import ACCESS_TOKEN_EXPIRE_MINUTES
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token, 
+        "token_type": "bearer",
+        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    }
 
 
 @app.on_event("startup")
