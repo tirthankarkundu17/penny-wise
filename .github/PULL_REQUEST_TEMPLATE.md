@@ -2,10 +2,7 @@
 
 Please include a summary of the change and which issue is fixed. List any dependencies that are required for this change.
 
-## 🔗 Related Issue
-Fixes # (issue)
-
-## 🛠️ Type of Change
+## ️ Type of Change
 - [ ] ✨ New feature (non-breaking change which adds functionality)
 - [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
 - [ ] 🧹 Refactor (code cleanup or structural changes)
