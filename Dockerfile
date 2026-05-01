@@ -1,12 +1,6 @@
 # Use a slim Python 3.12 image
 FROM python:3.12-slim-bookworm
 
-# Install system dependencies for Tesseract OCR (required by pytesseract)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
-    libtesseract-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install uv for fast dependency management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
