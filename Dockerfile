@@ -1,22 +1,33 @@
-# Dockerfile /path/to/app/backend
+# Use a slim Python 3.12 image
+FROM python:3.12-slim-bookworm
 
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Install system dependencies for Tesseract OCR (required by pytesseract)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    libtesseract-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory in the container
+# Install uv for fast dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Enable bytecode compilation and optimization
+ENV UV_COMPILE_BYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Copy dependency files first to leverage Docker layer caching
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies (excluding development tools)
+RUN uv sync --frozen --no-install-project --no-dev
+
+# Copy the application code
 COPY . .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Make port 8000 available to the world outside this container
+# Expose the application port
 EXPOSE 8000
 
-# Define environment variable
-ENV GEMINI_API_KEY=your_api_key_here
-
-# Run app.py when the container launches
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the FastAPI application using uv to ensure the virtualenv is correctly managed
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

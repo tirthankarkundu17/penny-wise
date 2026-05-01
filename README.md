@@ -55,6 +55,18 @@ uv run uvicorn app.main:app --reload
 
 Visit `http://127.0.0.1:8000/docs` in your browser to access the interactive API documentation (Swagger UI).
 
+### 🐳 Running with Docker
+
+1. **Build the image**:
+   ```bash
+   docker build -t penny-wise .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -p 8000:8000 --env-file .env penny-wise
+   ```
+
 ## 📁 Project Structure
 
 ```text
