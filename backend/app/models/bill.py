@@ -15,6 +15,7 @@ class Bill(SQLModel, table=True):
     store_name: str
     bill_date: str
     bill_number: Optional[str] = None
+    description: Optional[str] = None
     grand_total: float
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

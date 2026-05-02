@@ -250,6 +250,28 @@ const UploadModal = ({ onClose, onSuccess }) => {
                           style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text)' }}
                       />
                   </div>
+                  <div className="input-group">
+                      <label>Bill ID (Number)</label>
+                      <input 
+                          type="text" 
+                          value={billData.bill_number || ''} 
+                          onChange={(e) => updateBillField('bill_number', e.target.value)}
+                          className="glass"
+                          style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text)' }}
+                          placeholder="Optional"
+                      />
+                  </div>
+                  <div className="input-group" style={{ gridColumn: 'span 2' }}>
+                      <label>Bill Description</label>
+                      <input 
+                          type="text" 
+                          value={billData.description || ''} 
+                          onChange={(e) => updateBillField('description', e.target.value)}
+                          className="glass"
+                          style={{ width: '100%', padding: '0.75rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', color: 'var(--text)' }}
+                          placeholder="e.g. Monthly groceries, Office supplies"
+                      />
+                  </div>
               </div>
 
               <div style={{ marginTop: '1rem' }}>

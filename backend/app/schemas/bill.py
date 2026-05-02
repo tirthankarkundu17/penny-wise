@@ -24,6 +24,7 @@ class BillBase(BaseModel):
     store_name: str
     bill_date: str
     bill_number: Optional[str] = None
+    description: Optional[str] = None
     grand_total: float
 
 

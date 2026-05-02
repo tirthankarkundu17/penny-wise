@@ -38,6 +38,7 @@ class SQLRepository(BaseRepository):
             store_name=extracted_data.store_name,
             bill_date=extracted_data.bill_date,
             bill_number=extracted_data.bill_number,
+            description=extracted_data.description,
             grand_total=extracted_data.grand_total,
         )
         self.session.add(db_bill)
