@@ -77,13 +77,19 @@ const BillDetails = ({ bill, onClose }) => {
                 <div style={{ fontWeight: '600' }}>{bill.bill_number || 'N/A'}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <CreditCard size={20} color="var(--primary)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', gridColumn: bill.description ? 'span 2' : 'auto' }}>
+              < CreditCard size={20} color="var(--primary)" />
               <div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Amount</div>
                 <div style={{ fontWeight: '700', color: 'var(--text)', fontSize: '1.1rem' }}>₹{bill.grand_total.toFixed(2)}</div>
               </div>
             </div>
+            {bill.description && (
+              <div style={{ gridColumn: 'span 2', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Description</div>
+                <div style={{ fontSize: '0.9rem' }}>{bill.description}</div>
+              </div>
+            )}
           </div>
 
           <h3 style={{ marginBottom: '1rem' }}>Items</h3>
