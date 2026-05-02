@@ -140,6 +140,7 @@ const Dashboard = () => {
           <BillDetails 
             bill={selectedBill} 
             onClose={() => setSelectedBill(null)} 
+            onRefresh={fetchBills}
           />
         )}
         {isUploadOpen && (

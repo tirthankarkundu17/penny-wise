@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Any, List, Optional
 
@@ -43,6 +44,12 @@ class MongoDBRepository(BaseRepository):
         return None
 
     async def create_bill(self, user_id: Any, extracted_data: BillCreate) -> Bill:
+        items_data = []
+        for item in extracted_data.items:
+            idat = item.model_dump()
+            idat["id"] = idat.get("hsn") or str(uuid.uuid4())
+            items_data.append(idat)
+
         doc = {
             "user_id": str(user_id),
             "store_name": extracted_data.store_name,
@@ -50,16 +57,13 @@ class MongoDBRepository(BaseRepository):
             "bill_number": extracted_data.bill_number,
             "grand_total": extracted_data.grand_total,
             "created_at": datetime.utcnow(),
-            "items": [item.model_dump() for item in extracted_data.items],
+            "items": items_data,
         }
         result = await self.db.bills.insert_one(doc)
         bill_id = str(result.inserted_id)
         doc["id"] = bill_id
 
-        items = [
-            Item(**{**item_data, "id": i, "bill_id": bill_id})
-            for i, item_data in enumerate(doc["items"])
-        ]
+        items = [Item(**{**idat, "bill_id": bill_id}) for idat in items_data]
         doc.pop("items")
         bill = Bill(**doc)
         bill.items = items
@@ -73,8 +77,7 @@ class MongoDBRepository(BaseRepository):
             doc["id"] = str(doc.pop("_id"))
             items_data = doc.pop("items", [])
             items = [
-                Item(**{**item, "id": i, "bill_id": doc["id"]})
-                for i, item in enumerate(items_data)
+                Item(**{**item, "bill_id": doc["id"]}) for item in items_data
             ]
             bill = Bill(**doc)
             bill.items = items
@@ -100,10 +103,29 @@ class MongoDBRepository(BaseRepository):
         history = []
         for r in results:
             item_data = r["items"]
-            item_data.update({"id": 0, "bill_id": str(r["_id"])})
+            item_data.update({"bill_id": str(r["_id"])})
             item = Item(**item_data)
             r["id"] = str(r.pop("_id"))
             r.pop("items")
             bill = Bill(**r)
             history.append((item, bill))
         return history
+
+    async def delete_bill(self, user_id: Any, bill_id: Any) -> bool:
+        from bson import ObjectId
+
+        try:
+            result = await self.db.bills.delete_one(
+                {"_id": ObjectId(bill_id), "user_id": str(user_id)}
+            )
+            return result.deleted_count > 0
+        except Exception:
+            return False
+
+    async def delete_item(self, user_id: Any, item_id: Any) -> bool:
+        # We search for the bill belonging to the user and containing an item with matching ID or HSN
+        result = await self.db.bills.update_one(
+            {"user_id": str(user_id)},
+            {"$pull": {"items": {"$or": [{"id": item_id}, {"hsn": item_id}]}}},
+        )
+        return result.modified_count > 0
