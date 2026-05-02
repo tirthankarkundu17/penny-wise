@@ -24,6 +24,16 @@ export const authApi = {
 
 export const billsApi = {
   list: () => api.get('/bills/'),
+  extract: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/bills/extract', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  create: (billData) => api.post('/bills/', billData),
   upload: (file) => {
     const formData = new FormData();
     formData.append('file', file);

@@ -6,12 +6,38 @@ from app.core.dependencies import get_current_user
 from app.db.repositories import get_repository
 from app.db.repositories.base import BaseRepository
 from app.models.user import User
-from app.schemas.bill import BillRead
+from app.schemas.bill import BillRead, BillCreate
 from app.services.gemini_service import GeminiService
 
 router = APIRouter(prefix="/bills", tags=["Bills"])
 
 _gemini = GeminiService()
+
+
+@router.post("/extract", response_model=BillCreate)
+async def extract_receipt(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+) -> BillCreate:
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    image_bytes = await file.read()
+
+    try:
+        extracted_data = _gemini.extract_receipt_data(image_bytes)
+        return extracted_data
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Gemini extraction failed: {exc}")
+
+
+@router.post("/", response_model=BillRead)
+async def create_bill(
+    bill_data: BillCreate,
+    repo: BaseRepository = Depends(get_repository),
+    current_user: User = Depends(get_current_user),
+) -> BillRead:
+    return await repo.create_bill(current_user.id, bill_data)
 
 
 @router.post("/upload", response_model=BillRead)
@@ -20,6 +46,7 @@ async def upload_receipt(
     repo: BaseRepository = Depends(get_repository),
     current_user: User = Depends(get_current_user),
 ) -> BillRead:
+    # Deprecated: UI should use /extract and then POST /
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
