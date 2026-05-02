@@ -76,3 +76,33 @@ class SQLRepository(BaseRepository):
             .order_by(Bill.bill_date)
         )
         return self.session.exec(statement).all()
+
+    async def delete_bill(self, user_id: Any, bill_id: Any) -> bool:
+        bill = self.session.exec(
+            select(Bill).where(Bill.id == bill_id).where(Bill.user_id == user_id)
+        ).first()
+        if not bill:
+            return False
+
+        # SQLModel should handle cascading if configured, but let's be safe
+        # Or depend on DB cascade. By default, we might need to delete items first.
+        # Let's check if the Relationship has cascade.
+        for item in bill.items:
+            self.session.delete(item)
+        self.session.delete(bill)
+        self.session.commit()
+        return True
+
+    async def delete_item(self, user_id: Any, item_id: Any) -> bool:
+        item = self.session.exec(
+            select(Item)
+            .join(Bill)
+            .where(Item.id == item_id)
+            .where(Bill.user_id == user_id)
+        ).first()
+        if not item:
+            return False
+
+        self.session.delete(item)
+        self.session.commit()
+        return True

@@ -34,6 +34,8 @@ export const billsApi = {
     });
   },
   create: (billData) => api.post('/bills/', billData),
+  delete: (billId) => api.delete(`/bills/${billId}`),
+  deleteItem: (itemId) => api.delete(`/bills/items/${itemId}`),
   upload: (file) => {
     const formData = new FormData();
     formData.append('file', file);

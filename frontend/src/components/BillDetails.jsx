@@ -1,7 +1,46 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Store, Calendar, Hash, CreditCard } from 'lucide-react';
+import { X, Store, Calendar, Hash, CreditCard, Trash2, Loader2 } from 'lucide-react';
+import { billsApi } from '../services/api';
 
-const BillDetails = ({ bill, onClose }) => {
+const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
+  const [bill, setBill] = useState(initialBill);
+  const [deleting, setDeleting] = useState(false);
+  const [deletingItem, setDeletingItem] = useState(null);
+
+  const handleDeleteBill = async () => {
+    if (!window.confirm('Are you sure you want to delete this entire bill? This action cannot be undone.')) return;
+    
+    setDeleting(true);
+    try {
+      await billsApi.delete(bill.id);
+      onRefresh();
+      onClose();
+    } catch (err) {
+      alert('Failed to delete bill');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteItem = async (itemId) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    
+    setDeletingItem(itemId);
+    try {
+      await billsApi.deleteItem(itemId);
+      // Update local state
+      const updatedItems = bill.items.filter(item => item.id !== itemId);
+      const newTotal = updatedItems.reduce((sum, item) => sum + item.value, 0);
+      setBill({ ...bill, items: updatedItems, grand_total: newTotal });
+      onRefresh();
+    } catch (err) {
+      alert('Failed to delete item');
+    } finally {
+      setDeletingItem(null);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -48,7 +87,18 @@ const BillDetails = ({ bill, onClose }) => {
           background: 'var(--surface)',
           zIndex: 1
         }}>
-          <h2>Bill Details</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <h2>Bill Details</h2>
+            <button 
+                onClick={handleDeleteBill} 
+                className="btn-secondary" 
+                disabled={deleting}
+                style={{ color: 'var(--error)', padding: '0.4rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
+            >
+                {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                Delete Bill
+            </button>
+          </div>
           <button onClick={onClose} className="btn-secondary" style={{ padding: '0.5rem', borderRadius: '50%' }}>
             <X size={20} />
           </button>
@@ -100,6 +150,7 @@ const BillDetails = ({ bill, onClose }) => {
                   <th style={{ padding: '0.75rem 1rem' }}>Item</th>
                   <th style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>Qty</th>
                   <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Price</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -111,6 +162,15 @@ const BillDetails = ({ bill, onClose }) => {
                     </td>
                     <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>{item.qty}</td>
                     <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: '600' }}>₹{item.net_price.toFixed(2)}</td>
+                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                        <button 
+                            onClick={() => handleDeleteItem(item.id)} 
+                            disabled={deletingItem === item.id}
+                            style={{ color: 'var(--error)', background: 'none', border: 'none', cursor: 'pointer', opacity: 0.7 }}
+                        >
+                            {deletingItem === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                        </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

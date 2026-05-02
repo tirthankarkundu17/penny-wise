@@ -66,3 +66,27 @@ async def list_bills(
     current_user: User = Depends(get_current_user),
 ) -> List[BillRead]:
     return await repo.get_bills_by_user(current_user.id)
+
+
+@router.delete("/{bill_id}")
+async def delete_bill(
+    bill_id: str,
+    repo: BaseRepository = Depends(get_repository),
+    current_user: User = Depends(get_current_user),
+):
+    success = await repo.delete_bill(current_user.id, bill_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    return {"message": "Bill deleted successfully"}
+
+
+@router.delete("/items/{item_id}")
+async def delete_item(
+    item_id: str,
+    repo: BaseRepository = Depends(get_repository),
+    current_user: User = Depends(get_current_user),
+):
+    success = await repo.delete_item(current_user.id, item_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": "Item deleted successfully"}

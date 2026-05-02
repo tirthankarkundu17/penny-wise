@@ -25,3 +25,9 @@ class BaseRepository(ABC):
 
     @abstractmethod
     async def get_price_history(self, user_id: Any, item_name: str) -> List[Any]: ...
+
+    @abstractmethod
+    async def delete_bill(self, user_id: Any, bill_id: Any) -> bool: ...
+
+    @abstractmethod
+    async def delete_item(self, user_id: Any, item_id: Any) -> bool: ...
