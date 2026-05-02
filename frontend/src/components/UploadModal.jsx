@@ -294,13 +294,22 @@ const UploadModal = ({ onClose, onSuccess }) => {
                               borderRadius: 'var(--radius-md)',
                               border: '1px solid rgba(255,255,255,0.05)'
                           }}>
-                              <input 
-                                  placeholder="Item Name"
-                                  type="text" 
-                                  value={item.item_name} 
-                                  onChange={(e) => updateItemField(index, 'item_name', e.target.value)}
-                                  style={{ background: 'transparent', border: 'none', color: 'var(--text)', width: '100%' }}
-                              />
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                  <input 
+                                      placeholder="Item Name"
+                                      type="text" 
+                                      value={item.item_name} 
+                                      onChange={(e) => updateItemField(index, 'item_name', e.target.value)}
+                                      style={{ background: 'transparent', border: 'none', color: 'var(--text)', width: '100%', fontWeight: '500' }}
+                                  />
+                                  <input 
+                                      placeholder="Description"
+                                      type="text" 
+                                      value={item.description || ''} 
+                                      onChange={(e) => updateItemField(index, 'description', e.target.value)}
+                                      style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', width: '100%', fontSize: '0.75rem' }}
+                                  />
+                              </div>
                               <input 
                                   placeholder="Qty"
                                   type="number" 
