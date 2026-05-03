@@ -43,16 +43,16 @@ const PriceComparator = () => {
   const comparison = getComparison();
 
   return (
-    <div className="card glass" style={{ marginTop: '2rem', border: '1px solid var(--primary)', background: 'rgba(99, 102, 241, 0.05)', overflow: 'hidden' }}>
+    <div className="card glass mobile-p-1" style={{ marginTop: '2rem', border: '1px solid var(--primary)', background: 'rgba(99, 102, 241, 0.05)', overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
         <Calculator size={20} color="var(--primary)" />
         <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Price Comparison Tool</h3>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }} className="mobile-gap-1">
         <div style={{ display: 'grid', gap: '1rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>PREVIOUS PURCHASE</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.75rem' }}>
             <div>
               <label style={{ fontSize: '0.7rem', display: 'block', marginBottom: '0.25rem', color: 'var(--text-muted)' }}>Price (₹)</label>
               <input 
@@ -74,16 +74,14 @@ const PriceComparator = () => {
               />
             </div>
           </div>
-          {prevUnit !== null && (
-            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-              Unit Price: <span style={{ color: 'var(--text)' }}>₹{prevUnit.toFixed(2)}</span>
-            </div>
-          )}
+          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '500', minHeight: '1.25rem' }}>
+            Unit Price: <span style={{ color: 'var(--text)' }}>{prevUnit !== null ? `₹${prevUnit.toFixed(2)}` : '—'}</span>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gap: '1rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.05em' }}>NEW OPTION</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.75rem' }}>
             <div>
               <label style={{ fontSize: '0.7rem', display: 'block', marginBottom: '0.25rem', color: 'var(--text-muted)' }}>Price (₹)</label>
               <input 
@@ -105,11 +103,9 @@ const PriceComparator = () => {
               />
             </div>
           </div>
-          {newUnit !== null && (
-            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '500' }}>
-              Unit Price: <span style={{ color: 'var(--text)' }}>₹{newUnit.toFixed(2)}</span>
-            </div>
-          )}
+          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '500', minHeight: '1.25rem' }}>
+            Unit Price: <span style={{ color: 'var(--text)' }}>{newUnit !== null ? `₹${newUnit.toFixed(2)}` : '—'}</span>
+          </div>
         </div>
       </div>
 

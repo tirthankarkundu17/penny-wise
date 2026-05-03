@@ -29,18 +29,7 @@ const SearchOverlay = ({ onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(15, 23, 42, 0.95)',
-        backdropFilter: 'blur(12px)',
-        zIndex: 200,
-        padding: '2rem',
-        overflowY: 'auto'
-      }}
+      className="search-overlay"
     >
       <div className="container" style={{ maxWidth: '800px' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
@@ -137,8 +126,8 @@ const SearchOverlay = ({ onClose }) => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
-                      className="card glass"
-                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem' }}
+                      className="card glass mobile-p-1"
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', flexWrap: 'wrap', gap: '1rem' }}
                     >
                       <div>
                         <div style={{ fontSize: '1.1rem', fontWeight: '600', color: 'var(--text)', marginBottom: '0.25rem' }}>
