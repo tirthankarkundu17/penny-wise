@@ -16,7 +16,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
       await billsApi.delete(bill.id);
       onRefresh();
       onClose();
-    } catch (err) {
+    } catch {
       alert('Failed to delete bill');
     } finally {
       setDeleting(false);
@@ -34,7 +34,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
       const newTotal = updatedItems.reduce((sum, item) => sum + item.value, 0);
       setBill({ ...bill, items: updatedItems, grand_total: newTotal });
       onRefresh();
-    } catch (err) {
+    } catch {
       alert('Failed to delete item');
     } finally {
       setDeletingItem(null);
