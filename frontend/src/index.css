@@ -235,6 +235,10 @@ body {
   .mobile-gap-1 {
     gap: 1rem !important;
   }
+
+  .mobile-show {
+    display: inline-block !important;
+  }
 }
 
 .search-overlay {
