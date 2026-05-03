@@ -209,10 +209,19 @@ p {
   background: var(--text-muted);
 }
 
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
 /* Responsive Utilities */
 @media (max-width: 640px) {
   .container {
-    padding: 0 1rem;
+    padding: 0 1.25rem;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .mobile-hide {
@@ -240,6 +249,7 @@ p {
   z-index: 200;
   padding: 2rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @media (max-width: 640px) {
