@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { billsApi } from '../services/api';
-import { Plus, Receipt, Search, LogOut, ChevronRight, Calendar, Store } from 'lucide-react';
+import { Plus, Receipt, Search, LogOut, ChevronRight, Calendar, Store, Calculator } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import BillDetails from '../components/BillDetails';
 import UploadModal from '../components/UploadModal';
 import SearchOverlay from '../components/SearchOverlay';
+import PriceComparator from '../components/PriceComparator';
 
 const Dashboard = () => {
   const [bills, setBills] = useState([]);
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const [selectedBill, setSelectedBill] = useState(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isComparatorOpen, setIsComparatorOpen] = useState(false);
   const { logout, user } = useAuth();
 
   const fetchBills = useCallback(async () => {
@@ -38,11 +40,30 @@ const Dashboard = () => {
           <h1 style={{ marginBottom: '0.25rem' }}>Hello, {user?.email.split('@')[0]}</h1>
           <p>You have {bills.length} bills tracked</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button 
+            onClick={() => setIsComparatorOpen(!isComparatorOpen)}
+            className="btn-secondary" 
+            style={{ 
+              borderRadius: '50%', 
+              padding: '0.75rem', 
+              width: '48px', 
+              height: '48px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              borderColor: isComparatorOpen ? 'var(--primary)' : 'var(--border)',
+              background: isComparatorOpen ? 'rgba(99, 102, 241, 0.1)' : 'var(--surface)'
+            }}
+            title="Price Comparator"
+          >
+            <Calculator size={20} color={isComparatorOpen ? 'var(--primary)' : 'currentColor'} />
+          </button>
           <button 
             onClick={() => setIsSearchOpen(true)}
             className="btn-secondary" 
             style={{ borderRadius: '50%', padding: '0.75rem', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Search"
           >
             <Search size={20} />
           </button>
@@ -50,11 +71,25 @@ const Dashboard = () => {
             onClick={logout}
             className="btn-secondary" 
             style={{ borderRadius: '50%', padding: '0.75rem', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            title="Logout"
           >
             <LogOut size={20} />
           </button>
         </div>
       </header>
+
+      <AnimatePresence>
+        {isComparatorOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: '3rem' }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <PriceComparator />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
