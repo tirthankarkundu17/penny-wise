@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, Loader2, Image as ImageIcon, CheckCircle2, Save, Plus, Trash2, Edit2 } from 'lucide-react';
+import { X, Upload, Loader2, Image as ImageIcon, CheckCircle2, Save, Plus, Trash2 } from 'lucide-react';
 import { billsApi } from '../services/api';
 
 const UploadModal = ({ onClose, onSuccess }) => {

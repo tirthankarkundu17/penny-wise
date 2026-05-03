@@ -76,9 +76,7 @@ class MongoDBRepository(BaseRepository):
         for doc in docs:
             doc["id"] = str(doc.pop("_id"))
             items_data = doc.pop("items", [])
-            items = [
-                Item(**{**item, "bill_id": doc["id"]}) for item in items_data
-            ]
+            items = [Item(**{**item, "bill_id": doc["id"]}) for item in items_data]
             bill = Bill(**doc)
             bill.items = items
             bills.append(bill)

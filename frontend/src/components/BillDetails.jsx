@@ -16,7 +16,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
       await billsApi.delete(bill.id);
       onRefresh();
       onClose();
-    } catch (err) {
+    } catch {
       alert('Failed to delete bill');
     } finally {
       setDeleting(false);
@@ -34,7 +34,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
       const newTotal = updatedItems.reduce((sum, item) => sum + item.value, 0);
       setBill({ ...bill, items: updatedItems, grand_total: newTotal });
       onRefresh();
-    } catch (err) {
+    } catch {
       alert('Failed to delete item');
     } finally {
       setDeletingItem(null);
@@ -66,7 +66,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="card glass"
+        className="card glass mobile-p-1"
         style={{
           width: '100%',
           maxWidth: '600px',
@@ -77,7 +77,7 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ 
-          padding: '1.5rem', 
+          padding: '1rem', 
           borderBottom: '1px solid var(--border)', 
           display: 'flex', 
           justifyContent: 'space-between',
@@ -87,16 +87,17 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
           background: 'var(--surface)',
           zIndex: 1
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <h2>Bill Details</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Bill Details</h2>
             <button 
                 onClick={handleDeleteBill} 
                 className="btn-secondary" 
                 disabled={deleting}
-                style={{ color: 'var(--error)', padding: '0.4rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
+                style={{ color: 'var(--error)', padding: '0.4rem 0.6rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem' }}
             >
                 {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                Delete Bill
+                <span className="mobile-hide">Delete Bill</span>
+                <span style={{ display: 'none' }} className="mobile-show">Delete</span>
             </button>
           </div>
           <button onClick={onClose} className="btn-secondary" style={{ padding: '0.5rem', borderRadius: '50%' }}>
@@ -104,46 +105,46 @@ const BillDetails = ({ bill: initialBill, onClose, onRefresh }) => {
           </button>
         </div>
 
-        <div style={{ padding: '1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+        <div style={{ padding: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <Store size={20} color="var(--primary)" />
+              <Store size={18} color="var(--primary)" />
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Store</div>
-                <div style={{ fontWeight: '600' }}>{bill.store_name}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Store</div>
+                <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{bill.store_name}</div>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <Calendar size={20} color="var(--primary)" />
+              <Calendar size={18} color="var(--primary)" />
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Date</div>
-                <div style={{ fontWeight: '600' }}>{bill.bill_date}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Date</div>
+                <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{bill.bill_date}</div>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <Hash size={20} color="var(--primary)" />
+              <Hash size={18} color="var(--primary)" />
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Bill #</div>
-                <div style={{ fontWeight: '600' }}>{bill.bill_number || 'N/A'}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Bill #</div>
+                <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{bill.bill_number || 'N/A'}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', gridColumn: bill.description ? 'span 2' : 'auto' }}>
-              < CreditCard size={20} color="var(--primary)" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              < CreditCard size={18} color="var(--primary)" />
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Amount</div>
-                <div style={{ fontWeight: '700', color: 'var(--text)', fontSize: '1.1rem' }}>₹{bill.grand_total.toFixed(2)}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Total Amount</div>
+                <div style={{ fontWeight: '700', color: 'var(--text)', fontSize: '1rem' }}>₹{bill.grand_total.toFixed(2)}</div>
               </div>
             </div>
             {bill.description && (
-              <div style={{ gridColumn: 'span 2', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Description</div>
-                <div style={{ fontSize: '0.9rem' }}>{bill.description}</div>
+              <div style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Description</div>
+                <div style={{ fontSize: '0.85rem' }}>{bill.description}</div>
               </div>
             )}
           </div>
 
-          <h3 style={{ marginBottom: '1rem' }}>Items</h3>
-          <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Items</h3>
+          <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.05)', textAlign: 'left', fontSize: '0.875rem' }}>
