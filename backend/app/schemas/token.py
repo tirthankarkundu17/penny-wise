@@ -12,4 +12,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: Optional[str] = None
     token_type: Optional[str] = None  # To distinguish between access and refresh tokens
-

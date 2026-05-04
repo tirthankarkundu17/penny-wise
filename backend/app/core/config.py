@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
-
     # Database
     database_type: str = "sqlite"  # sqlite or mongodb
     mongodb_url: str = "mongodb://localhost:27017"

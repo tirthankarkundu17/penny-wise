@@ -98,4 +98,3 @@ async def refresh_token(
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
     )
-

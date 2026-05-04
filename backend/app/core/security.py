@@ -42,10 +42,15 @@ def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) 
 
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        payload = jwt.decode(
+            token, settings.secret_key, algorithms=[settings.algorithm]
+        )
         if payload.get("type") != "access":
             raise ValueError("Invalid token type")
         return payload
     except JWTError as e:
-        raise HTTPException(status_code=401, detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"}) from e
-
+        raise HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from e
