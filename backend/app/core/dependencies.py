@@ -7,7 +7,7 @@ from app.db.repositories import get_repository
 from app.db.repositories.base import BaseRepository
 from app.models.user import User
 from app.schemas.token import TokenData
-from app.services import security  # Import the security module
+from app.core import security  # Import the security module
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 

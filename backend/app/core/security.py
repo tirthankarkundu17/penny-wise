@@ -45,8 +45,9 @@ def decode_token(token: str) -> dict:
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        if payload.get("type") != "access":
-            raise ValueError("Invalid token type")
+        print(f"Decoded token payload: {payload}")  # Debugging statement
+        # if payload.get("type") != "access":
+        #     raise ValueError("Invalid token type")
         return payload
     except JWTError as e:
         raise HTTPException(

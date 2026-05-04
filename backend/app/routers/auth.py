@@ -10,7 +10,7 @@ from app.core.security import (
 )
 from app.db.repositories import get_repository
 from app.db.repositories.base import BaseRepository
-from app.schemas.user import UserCreate, UserRead, UserLogin
+from app.schemas.user import UserCreate, UserRead, UserLogin, RefreshToken
 from app.schemas.token import Token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -58,13 +58,14 @@ async def login(
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(
-    refresh_token: str,
+    token: RefreshToken,
     repo: BaseRepository = Depends(get_repository),
 ) -> Token:
     # Decode and validate the refresh token using decode_token
-    payload = decode_token(refresh_token)
+    payload = decode_token(token.refresh_token)
+    print(f"Decoded refresh token payload: {payload}")  # Debugging statement
 
-    if payload.get("token_type") != "refresh":
+    if payload.get("type") != "refresh":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token type",
