@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 
 from app.models.user import User
 from app.models.bill import Bill
-from app.schemas.user import UserCreate
+from app.schemas.user import RefreshToken, UserCreate
 from app.schemas.bill import BillCreate
 
 
@@ -31,3 +31,9 @@ class BaseRepository(ABC):
 
     @abstractmethod
     async def delete_item(self, user_id: Any, item_id: Any) -> bool: ...
+
+    @abstractmethod
+    async def get_refresh_token_by_value(self, refresh_token: str) -> str | None: ...
+
+    @abstractmethod
+    async def update_refresh_token(self, user_id: Any, new_refresh_token: str) -> RefreshToken: ...
