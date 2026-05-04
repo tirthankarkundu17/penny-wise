@@ -65,7 +65,6 @@ async def refresh_token(
 ) -> Token:
     # Decode and validate the refresh token using decode_token
     payload = decode_token(token.refresh_token)
-    print(f"Decoded refresh token payload: {payload}")  # Debugging statement
 
     if payload.get("type") != "refresh":
         raise HTTPException(
@@ -75,7 +74,6 @@ async def refresh_token(
         )
     # (Optional but recommended) Check if the refresh token is in the database/allowlist
     existing_token = await repo.get_refresh_token_by_value(token.refresh_token)
-    print(f"Existing token from database: {existing_token}")  # Debugging statement
     if not existing_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,7 +92,9 @@ async def refresh_token(
     access_token = create_access_token(data={"sub": user.username})
     # (Optional) Rotate the refresh token (create a new refresh token and revoke the old one)
     new_refresh_token = create_refresh_token(data={"sub": user.username})
-    await repo.update_refresh_token(user_id=user.id, new_refresh_token=new_refresh_token)
+    await repo.update_refresh_token(
+        user_id=user.id, new_refresh_token=new_refresh_token
+    )
 
     return Token(
         access_token=access_token,
@@ -102,4 +102,3 @@ async def refresh_token(
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
     )
-

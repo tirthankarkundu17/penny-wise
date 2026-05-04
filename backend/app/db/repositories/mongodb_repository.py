@@ -134,6 +134,9 @@ class MongoDBRepository(BaseRepository):
         return None
 
     async def update_refresh_token(self, user_id: Any, new_refresh_token: str):
-        print(f"Updating refresh token for user_id={user_id} to new_refresh_token={new_refresh_token}")
-        await self.db.users.update_one({"_id": ObjectId(user_id)}, {"$set": {"refresh_token": new_refresh_token}})
-        return await self.get_refresh_token_by_value(new_refresh_token)  # Refresh the object from the database
+        await self.db.users.update_one(
+            {"_id": ObjectId(user_id)}, {"$set": {"refresh_token": new_refresh_token}}
+        )
+        return await self.get_refresh_token_by_value(
+            new_refresh_token
+        )  # Refresh the object from the database
