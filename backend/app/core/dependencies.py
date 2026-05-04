@@ -21,6 +21,9 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        # TODO: Refactor to use security.decode_token for consistency
+        # 1. Decode token
+        # 2. Verify 'type' claim is 'access'
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
@@ -30,6 +33,7 @@ async def get_current_user(
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
+
 
     user = await repo.get_user_by_username(token_data.username)
     if user is None:

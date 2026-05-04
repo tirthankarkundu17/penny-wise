@@ -24,5 +24,22 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     expire = datetime.utcnow() + (
         expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
     )
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+
+
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    # TODO: Implement refresh token creation logic
+    # 1. Copy data
+    # 2. Set expiration (usually much longer than access token)
+    # 3. Set type to 'refresh'
+    # 4. Encode and return
+    pass
+
+
+def decode_token(token: str) -> dict:
+    # TODO: Implement token decoding and validation
+    # 1. Use jwt.decode with settings.secret_key and settings.algorithm
+    # 2. Handle JWTError and return appropriate info or raise HTTPException
+    pass
+
