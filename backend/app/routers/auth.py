@@ -61,13 +61,41 @@ async def refresh_token(
     refresh_token: str,
     repo: BaseRepository = Depends(get_repository),
 ) -> Token:
-    # TODO: Implement refresh token flow
-    # 1. Decode and validate the refresh token using decode_token
-    # 2. Check if the token type is 'refresh'
-    # 3. (Optional but recommended) Check if the refresh token is in the database/allowlist
-    # 4. Get the user from the database
-    # 5. Create a new access token
-    # 6. (Optional) Rotate the refresh token (create a new refresh token and revoke the old one)
-    # 7. Return the new Token schema
-    pass
+    # Decode and validate the refresh token using decode_token
+    payload = decode_token(refresh_token)
+
+    if payload.get("token_type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # (Optional but recommended) Check if the refresh token is in the database/allowlist
+    existing_token = await repo.get_refresh_token_by_value(refresh_token)
+    if not existing_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # Get the user from the database
+    user = await repo.get_user_by_username(payload["sub"])
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # Create a new access token
+    access_token = create_access_token(data={"sub": user.username})
+    # (Optional) Rotate the refresh token (create a new refresh token and revoke the old one)
+    new_refresh_token = create_refresh_token(data={"sub": user.username})
+    await repo.update_refresh_token(refresh_token, new_refresh_token)
+
+    return Token(
+        access_token=access_token,
+        refresh_token=new_refresh_token,
+        token_type="bearer",
+        expires_in=settings.access_token_expire_minutes * 60,
+    )
 

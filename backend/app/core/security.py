@@ -1,10 +1,13 @@
+# backend/app/core/security.py (1-46)
 from datetime import datetime, timedelta
+from http.client import HTTPException
 from typing import Optional
 
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 from app.core.config import settings
+
 
 pwd_context = CryptContext(
     schemes=["pbkdf2_sha256", "bcrypt", "bcrypt_sha256"], deprecated="auto"
@@ -29,17 +32,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    # TODO: Implement refresh token creation logic
-    # 1. Copy data
-    # 2. Set expiration (usually much longer than access token)
-    # 3. Set type to 'refresh'
-    # 4. Encode and return
-    pass
+    if expires_delta is None:
+        expires_delta = timedelta(days=7)  # Refresh token expires in 7 days
+    to_encode = data.copy()
+    expire = datetime.utcnow() + expires_delta
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 
 def decode_token(token: str) -> dict:
-    # TODO: Implement token decoding and validation
-    # 1. Use jwt.decode with settings.secret_key and settings.algorithm
-    # 2. Handle JWTError and return appropriate info or raise HTTPException
-    pass
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        if payload.get("type") != "access":
+            raise ValueError("Invalid token type")
+        return payload
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail="Could not validate credentials", headers={"WWW-Authenticate": "Bearer"}) from e
 
