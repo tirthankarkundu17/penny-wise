@@ -23,9 +23,7 @@ async def get_current_user(
     )
     try:
         # Refactor to use security.decode_token for consistency
-        payload = security.decode_token(
-            token, settings.secret_key, algorithms=[settings.algorithm]
-        )
+        payload = security.decode_token(token)
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
