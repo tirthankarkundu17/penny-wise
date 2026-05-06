@@ -17,6 +17,10 @@ class UserLogin(BaseModel):
     password: str
 
 
+class RefreshToken(BaseModel):
+    refresh_token: str
+
+
 class UserRead(UserBase):
     id: Any
     is_active: bool

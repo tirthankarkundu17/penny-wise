@@ -9,7 +9,8 @@ from app.models.bill import Bill
 from app.models.item import Item
 from app.models.user import User
 from app.schemas.bill import BillCreate
-from app.schemas.user import UserCreate
+from app.schemas.user import RefreshToken, UserCreate
+from bson import ObjectId
 
 
 class MongoDBRepository(BaseRepository):
@@ -110,8 +111,6 @@ class MongoDBRepository(BaseRepository):
         return history
 
     async def delete_bill(self, user_id: Any, bill_id: Any) -> bool:
-        from bson import ObjectId
-
         try:
             result = await self.db.bills.delete_one(
                 {"_id": ObjectId(bill_id), "user_id": str(user_id)}
@@ -127,3 +126,17 @@ class MongoDBRepository(BaseRepository):
             {"$pull": {"items": {"$or": [{"id": item_id}, {"hsn": item_id}]}}},
         )
         return result.modified_count > 0
+
+    async def get_refresh_token_by_value(self, refresh_token: str) -> str | None:
+        doc = await self.db.users.find_one({"refresh_token": refresh_token})
+        if doc:
+            return doc["refresh_token"]
+        return None
+
+    async def update_refresh_token(self, user_id: Any, new_refresh_token: str):
+        await self.db.users.update_one(
+            {"_id": ObjectId(user_id)}, {"$set": {"refresh_token": new_refresh_token}}
+        )
+        return await self.get_refresh_token_by_value(
+            new_refresh_token
+        )  # Refresh the object from the database

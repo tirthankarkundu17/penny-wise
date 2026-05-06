@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.config import settings
-from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.security import (
+    get_password_hash,
+    verify_password,
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+)
 from app.db.repositories import get_repository
 from app.db.repositories.base import BaseRepository
-from app.schemas.user import UserCreate, UserRead, UserLogin
+from app.schemas.user import UserCreate, UserRead, UserLogin, RefreshToken
 from app.schemas.token import Token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -40,8 +46,59 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": user.username})
+    refresh_token = create_refresh_token(data={"sub": user.username})
+
+    await repo.update_refresh_token(user_id=user.id, new_refresh_token=refresh_token)
+
     return Token(
         access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        expires_in=settings.access_token_expire_minutes * 60,
+    )
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    token: RefreshToken,
+    repo: BaseRepository = Depends(get_repository),
+) -> Token:
+    # Decode and validate the refresh token using decode_token
+    payload = decode_token(token.refresh_token)
+
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # (Optional but recommended) Check if the refresh token is in the database/allowlist
+    existing_token = await repo.get_refresh_token_by_value(token.refresh_token)
+    if not existing_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # Get the user from the database
+    user = await repo.get_user_by_username(payload["sub"])
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # Create a new access token
+    access_token = create_access_token(data={"sub": user.username})
+    # (Optional) Rotate the refresh token (create a new refresh token and revoke the old one)
+    new_refresh_token = create_refresh_token(data={"sub": user.username})
+    await repo.update_refresh_token(
+        user_id=user.id, new_refresh_token=new_refresh_token
+    )
+
+    return Token(
+        access_token=access_token,
+        refresh_token=new_refresh_token,
         token_type="bearer",
         expires_in=settings.access_token_expire_minutes * 60,
     )

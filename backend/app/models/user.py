@@ -12,5 +12,6 @@ class User(SQLModel, table=True):
     hashed_password: str
     full_name: Optional[str] = None
     is_active: bool = Field(default=True)
+    refresh_token: Optional[str] = None
 
     bills: List["Bill"] = Relationship(back_populates="user")

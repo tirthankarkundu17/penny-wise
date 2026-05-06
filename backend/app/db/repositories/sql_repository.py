@@ -106,3 +106,18 @@ class SQLRepository(BaseRepository):
         self.session.delete(item)
         self.session.commit()
         return True
+
+    async def get_refresh_token_by_value(self, refresh_token: str) -> str | None:
+        user = self.session.exec(
+            select(User).where(User.refresh_token == refresh_token)
+        ).first()
+        return user.refresh_token if user else None
+
+    async def update_refresh_token(self, user_id: Any, new_refresh_token: str):
+        user = self.session.exec(select(User).where(User.id == user_id)).first()
+        if user:
+            user.refresh_token = new_refresh_token
+            self.session.add(user)
+            self.session.commit()
+            self.session.refresh(user)
+        return user

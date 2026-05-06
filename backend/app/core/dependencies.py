@@ -7,6 +7,7 @@ from app.db.repositories import get_repository
 from app.db.repositories.base import BaseRepository
 from app.models.user import User
 from app.schemas.token import TokenData
+from app.core import security  # Import the security module
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
@@ -21,9 +22,8 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(
-            token, settings.secret_key, algorithms=[settings.algorithm]
-        )
+        # Refactor to use security.decode_token for consistency
+        payload = security.decode_token(token)
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

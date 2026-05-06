@@ -11,8 +11,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await authApi.login(email, password);
-    const { access_token } = response.data;
+    const { access_token, refresh_token } = response.data;
     localStorage.setItem('token', access_token);
+    localStorage.setItem('refreshToken', refresh_token);
     // For now, we don't have a /me endpoint, so we'll just store the email as user info
     const userInfo = { email };
     localStorage.setItem('user', JSON.stringify(userInfo));
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
   };
@@ -32,3 +34,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
